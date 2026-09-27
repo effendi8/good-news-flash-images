@@ -34,37 +34,51 @@ jobs:
       - name: Which spec
         id: pick
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          # WHY NOT git diff-tree, which is the obvious way: the checkout is
+          # shallow, so the pushed commit has no parent here and diff-tree
+          # lists nothing. That is how this job failed on its very first run
+          # (2026-09-27). The working tree is the reliable source.
           if [ -n "${{ github.event.inputs.spec }}" ]; then
             spec="${{ github.event.inputs.spec }}"
           else
-            # The newest spec touched by this push. A push carrying several is
-            # not a case that happens, but picking silently would be worse
-            # than picking loudly.
-            spec="$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} \
-                    | grep -E '^carousel/[0-9-]+\.json$' | sort | tail -1)"
+            # Every spec with no rendered deck beside it, newest last. A spec
+            # whose PDF already exists is finished, and re-rendering it would
+            # replace a deck that may already be scheduled in Buffer.
+            spec=""
+            for f in $(ls carousel/*.json 2>/dev/null | sort); do
+              base="${f%.json}"
+              if [ ! -f "$base.pdf" ]; then spec="$f"; fi
+            done
           fi
           if [ -z "$spec" ] || [ ! -f "$spec" ]; then
-            echo "No spec to render." >&2
-            exit 1
+            # Not a failure. A push that touches this repository without
+            # adding a week's stories is an ordinary push.
+            echo "Nothing to render; every spec already has its deck."
+            echo "spec=" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           echo "spec=$spec" >> "$GITHUB_OUTPUT"
           echo "Rendering $spec"
 
       - name: Install the renderer
+        if: steps.pick.outputs.spec != ''
         working-directory: render
         run: npm install --no-audit --no-fund
 
       - name: The guards that fail quietly
+        if: steps.pick.outputs.spec != ''
         working-directory: render
         run: node test.js
 
       - name: Render
+        if: steps.pick.outputs.spec != ''
         run: node render/render.js "${{ steps.pick.outputs.spec }}"
         env:
           PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
 
       - name: Commit the deck
+        if: steps.pick.outputs.spec != ''
         run: |
           set -euo pipefail
           base="$(basename "${{ steps.pick.outputs.spec }}" .json)"
