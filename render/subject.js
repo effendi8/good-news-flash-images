@@ -270,12 +270,31 @@ async function commonsFile(fileName, log) {
   }
   return {
     imageUrl: ii.thumburl || ii.url,
-    creator: strip(val('Artist')).slice(0, 60),
+    creator: cleanCreator(strip(val('Artist'))),
     licenceLabel: licence || 'see Wikimedia Commons',
     owedCredit: owed,
     source: 'Wikimedia Commons',
     landing: ii.descriptionurl || ''
   };
+}
+
+/**
+ * THE NAME IN THE CREDIT, OR NOTHING (2026-09-27, the rebuilt deck).
+ *
+ * Commons fills the author field with notes as well as names. The
+ * public-domain elephant carried "No machine-readable author provided.
+ * Benjism89 assumed (based on copyright claims)", and the first version cut
+ * that at 60 characters and printed "...assumed (base" on two pages. A note
+ * is not a name: it is dropped, and the credit falls back to licence and
+ * source. A long name is cut at a word, never inside one.
+ */
+function cleanCreator(raw) {
+  const s = String(raw || '').replace(/\s+/g, ' ').trim();
+  if (!s) return '';
+  if (/machine-readable|no author|author unknown|^unknown\b|\bassumed\b|not provided|see below|anonymous/i.test(s)) return '';
+  if (s.length <= 60) return s;
+  const cut = s.slice(0, 60);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,;:(·-]+$/, '');
 }
 
 /**
@@ -335,4 +354,4 @@ async function subjectPicture(text, named, log) {
   return null;
 }
 
-module.exports = { subjectPicture, candidatePhrases };
+module.exports = { subjectPicture, candidatePhrases, cleanCreator };

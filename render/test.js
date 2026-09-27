@@ -276,6 +276,20 @@ console.log('\nTHE CHECK JUDGES THE SUBJECT, AND A LICENCE MUST FIT ON A SLIDE')
     }));
 }
 
+console.log('\nTHE CREDIT CARRIES A NAME OR NOTHING');
+{
+  const { cleanCreator } = require('./subject');
+  check('A NOTE IS NOT A NAME: "No machine-readable author provided..." is dropped',
+    cleanCreator('No machine-readable author provided. Benjism89 assumed (based on copyright claims).') === '');
+  check('a real name passes untouched', cleanCreator('Giles Laurent') === 'Giles Laurent');
+  const long = cleanCreator('National Oceanic and Atmospheric Administration Fisheries Science Center photographers team');
+  check('A LONG NAME IS CUT AT A WORD, never inside one',
+    long.length <= 60 && /Fisheries$|Science$|Center$|Administration$|Atmospheric$/.test(long), long);
+  const pd = creditLine({ kind: 'subject', creator: '', licenceLabel: 'Public domain', source: 'Wikimedia Commons' });
+  check('a public-domain photo with no name reads "... Public domain · Wikimedia Commons"',
+    /Public domain · Wikimedia Commons$/.test(pd) && !/machine/.test(pd), pd);
+}
+
 console.log('\nNO CHECK, NO PICTURE');
 {
   // The chooser with the check switched on and no key: the picture must be
