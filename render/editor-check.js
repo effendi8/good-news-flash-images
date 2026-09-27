@@ -52,6 +52,9 @@ async function editorApproves(pic, slide, cfg, log) {
     (pic.subject ? 'THE PICTURE IS FILED AS: ' + pic.subject + '\n' : '') +
     '\nAnswer ONLY with JSON: {"ok": true|false, "why": "<at most 12 words>"}.\n\n' +
     'Say false unless the picture plainly shows the subject the story is about. ' +
+    'THE SUBJECT, NOT THE MOMENT: a photograph of the named species, place, ' +
+    'building, vehicle or person is a YES even when the story is about one ' +
+    'particular animal, a young one, or a moment the picture does not show. ' +
     'A different place, a different species, a different object, a different ' +
     'person, or something that merely shares the name is a NO. ' +
     'A picture that is merely on the same theme is a NO. Rejecting costs us ' +
