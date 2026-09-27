@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "monday": "2026-09-28",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: Tuberculosis has killed more people than any other infectious disease in history. Treatment has saved an estimated 83 million lives since 2000. (World Health Organization)",
+  "quote": {
+    "text": "What you do makes a difference, and you have to decide what kind of difference you want to make.",
+    "by": "Jane Goodall"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "community",
+      "summary": "Kenya's Sheldrick Wildlife Trust keeper Misheck spent five months without a day off caring for Wangalla, a week-old elephant calf found hiding among zebras after lions scattered her herd.",
+      "proves": "Misheck's five months of near-constant care show a week-old orphaned elephant can be brought back to a stable, social life in a sanctuary.",
+      "outlet": "Good Good Good",
+      "url": "https://www.goodgoodgood.co/articles/baby-elephant-rescued-zebra-herd",
+      "numbers": [],
+      "picture": {
+        "subject": "African elephant",
+        "query": "Kenya's Sheldrick Wildlife Trust keeper Misheck spent five"
+      }
+    },
+    {
+      "n": 2,
+      "category": "climate_energy",
+      "summary": "Kazakhstan's Kok-Aral Dam increased the northern Aral Sea's water volume 68%, halved its salinity and more than tripled fish production, while Uzbekistan planted 4.2 million acres of the exposed lakebed.",
+      "proves": "A single dam project can partly reverse the shrinking of a major inland sea within a few years.",
+      "outlet": "ecoticias.com",
+      "url": "https://www.ecoticias.com/en/aral-sea-ships-desert-restoration/36992/",
+      "numbers": [
+        "68%",
+        "4.2 million"
+      ],
+      "picture": {
+        "subject": "Kok-Aral Dam",
+        "query": "Kazakhstan's Kok-Aral Dam increased the northern Aral Sea's"
+      }
+    },
+    {
+      "n": 3,
+      "category": "health",
+      "summary": "Burkina Faso's malaria vaccine rollout helped cut recorded cases by 32% and malaria deaths by 44% between 2024 and 2025.",
+      "proves": "Burkina Faso's combined vaccination and prevention program shows a country can nearly halve malaria deaths within two years.",
+      "outlet": "gavi.org",
+      "url": "https://www.gavi.org/vaccineswork/two-years-after-introduction-malaria-vaccine-burkina-faso-celebrates-its-impact?utm_source=substack&utm_medium=email",
+      "numbers": [
+        "32%",
+        "44%",
+        "2024"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Burkina Faso's malaria vaccine rollout helped cut recorded"
+      }
+    },
+    {
+      "n": 4,
+      "category": "science",
+      "summary": "Researchers at NHS Blood and Transplant traced the rare AnWj blood antigen to the MAL gene, solving a mystery open since 1972 and creating a new blood group system.",
+      "proves": "This discovery lets blood banks genetically screen for the extremely rare AnWj negative donors who were previously nearly impossible to identify.",
+      "outlet": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/releases/2026/09/260918024828.htm",
+      "numbers": [
+        "1972"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Researchers at NHS Blood and Transplant traced the"
+      }
+    },
+    {
+      "n": 5,
+      "category": "community",
+      "summary": "Dave and Cheryl Duffield's foundation committed $250 million over five years to expand nonprofit veterinary care for pet owners who cannot afford it.",
+      "proves": "Dave and Cheryl Duffield's gift shows a single foundation can fund a five year national fix for the 50 million pet care gap the Foundation identified.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/historic-philanthropic-gift-will-expand-veterinary-care-access-to-millions-of-americans-and-their-pets/",
+      "numbers": [
+        "250 million",
+        "50 million"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Dave and Cheryl Duffield's foundation committed $250 million"
+      }
+    }
+  ],
+  "builtAt": "2026-09-27T12:31:56.698Z"
+}
