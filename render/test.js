@@ -119,6 +119,14 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   const noZoom = buildHtml(Object.assign({}, spec, { zoomOut: '' }));
   check('and nothing verified means no line at all, never a filled slot',
     !/class="zoom"/.test(noZoom));
+  const withCredits = buildHtml(Object.assign({}, spec, {
+    slides: spec.slides.map((s, i) => Object.assign({}, s, i < 2
+      ? { resolvedPicture: { creator: 'Maker ' + i, licenceLabel: 'Public domain', source: 'Wikimedia Commons' } }
+      : {}))
+  }));
+  check('NO EM-DASH anywhere a reader can see it (rule R04), including the ' +
+    'picture credits on the closing page',
+    /class="credits"/.test(withCredits) && withCredits.indexOf('—') < 0);
 }
 
 console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');

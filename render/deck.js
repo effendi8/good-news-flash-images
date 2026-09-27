@@ -209,7 +209,7 @@ function closingSlide(spec) {
       </ol>
       ${spec.quote && spec.quote.text
         ? `<p class="quote">“${esc(spec.quote.text)}”<span>${esc(spec.quote.by)}</span></p>` : ''}
-      ${unique.length ? `<p class="credits">Pictures: ${esc(unique.join(' — '))}</p>` : ''}
+      ${unique.length ? `<p class="credits">Pictures: ${esc(unique.join('; '))}</p>` : ''}
     </div>
     <div class="foot">
       <span class="src">Follow the Page for one good story a day</span>
