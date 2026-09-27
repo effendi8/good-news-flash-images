@@ -135,7 +135,7 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   }));
   check('NO EM-DASH anywhere a reader can see it (rule R04), including the ' +
     'picture credits on the closing page',
-    /class="credits"/.test(withCredits) && withCredits.indexOf('—') < 0);
+    /class="credits"/.test(withCredits) && withCredits.indexOf('\u2014') < 0);
 }
 
 console.log('\nA SUBJECT FILED UNDER ANOTHER NAME STILL GETS ITS PICTURE');
