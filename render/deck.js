@@ -125,6 +125,20 @@ function numberBlock(s) {
 }
 
 function coverSlide(spec) {
+  // THE ZOOM-OUT GOES ON THE COVER (Stefan, 2026-09-27). It is one sourced
+  // "then versus now" fact, and in the text recap it is deliberately the
+  // very first line, above the title, because LinkedIn previews the opening
+  // sentence. A carousel has no opening sentence: the cover IS the preview.
+  // So it sits under the title here, where the same eye lands.
+  //
+  // It is still carried in the post caption as well, unchanged. Saying it
+  // twice costs nothing: almost nobody reads both, and the one who does
+  // reads the same sentence.
+  //
+  // Empty is a real answer, not a gap to fill: the trend library refuses to
+  // offer anything it cannot still verify, and the recap ships without the
+  // line rather than with a stale number. The cover does the same.
+  const zoom = String(spec.zoomOut || '').trim();
   return `
   <section class="page cover">
     <div class="clear"></div>
@@ -132,6 +146,7 @@ function coverSlide(spec) {
       <div class="sun"></div>
       <h1>${esc(spec.title)}</h1>
       <p class="sub">The ${spec.slides.length} stories readers chose, ${esc(humanWeek(spec.monday))}</p>
+      ${zoom ? `<p class="zoom">${esc(zoom)}</p>` : ''}
     </div>
     <div class="foot">
       <span class="src">Verified sources · published daily</span>
@@ -277,6 +292,10 @@ function buildHtml(spec) {
   .cover h1 { font-size: 86px; line-height: 1.08; font-weight: 700; color: ${NAVY};
     margin: 0; letter-spacing: -.02em; }
   .cover .sub { font-size: 34px; color: ${GREEN}; font-style: italic; margin: 40px 0 0; }
+  .cover .zoom {
+    font-size: 30px; line-height: 1.38; color: #3A4756; margin: 56px 0 0;
+    max-width: 24em; border-top: 5px solid ${YELLOW}; padding-top: 34px;
+  }
 
   .closing-body h2 { font-size: 54px; font-weight: 700; color: ${NAVY}; margin: 0 0 34px; }
   .links { margin: 0; padding-left: 46px; }

@@ -91,6 +91,14 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
 
   check('the page is 4:5, not A4: A4 leaves black bars in the viewer',
     /size: 1080px 1350px/.test(html));
+
+  // The zoom-out opens the text recap because LinkedIn previews the first
+  // sentence. A carousel has no first sentence, so the cover is where the
+  // same eye lands (Stefan, 2026-09-27).
+  check('THE ZOOM-OUT IS ON THE COVER', html.indexOf(spec.zoomOut) >= 0);
+  const noZoom = buildHtml(Object.assign({}, spec, { zoomOut: '' }));
+  check('and nothing verified means no line at all, never a filled slot',
+    !/class="zoom"/.test(noZoom));
 }
 
 console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
