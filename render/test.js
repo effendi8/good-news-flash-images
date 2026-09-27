@@ -276,6 +276,37 @@ console.log('\nTHE CHECK JUDGES THE SUBJECT, AND A LICENCE MUST FIT ON A SLIDE')
     }));
 }
 
+console.log('\nA CREDIT THAT IS OWED NEEDS A NAME');
+{
+  // Audit 2026-09-27: a CC BY-SA file whose author field is a note came
+  // through with its name dropped and shipped without the attribution the
+  // licence requires. Now such a file is refused and the next photo of the
+  // same entry is tried; a public-domain file with no name is still fine.
+  const askedO = [];
+  const answersO = [
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'African elephant', pageprops: { wikibase_item: 'Q185038' } } } } }],
+    [/wbgetentities/, { entities: { Q185038: { labels: { en: { value: 'African elephant' } }, descriptions: { en: { value: 'genus of mammals' } } } } }],
+    [/wbgetclaims/, { claims: { P18: [
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant.jpg' } } },
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant2.jpg' } } }] } }],
+    [/commons\.wikimedia\.org.*Elephant2/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e2.jpg', extmetadata: {
+      LicenseShortName: { value: 'CC BY-SA 4.0' }, AttributionRequired: { value: 'true' }, Artist: { value: 'Giles Laurent' } } }] } } } }],
+    [/commons\.wikimedia\.org/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e.jpg', extmetadata: {
+      LicenseShortName: { value: 'CC BY-SA 4.0' }, AttributionRequired: { value: 'true' },
+      Artist: { value: 'No machine-readable author provided. Someone assumed (based on copyright claims).' } } }] } } } }],
+  ];
+  const { subjectPicture } = require('./subject');
+  pending.push(Promise.all(pending.slice())
+    .then(() => { const rf = global.fetch; global.fetch = stubFetch(answersO, askedO);
+      return subjectPicture('An elephant calf was raised.', 'African elephant', () => {})
+        .finally(() => { global.fetch = rf; }); })
+    .then((p) => {
+      check('A CC BY-SA FILE WITH NO USABLE AUTHOR IS REFUSED, and the entry\'s next ' +
+        'photo, which names its author, is used',
+        p && p.imageUrl === 'https://x/e2.jpg' && p.creator === 'Giles Laurent', JSON.stringify(p));
+    }));
+}
+
 console.log('\nTHE CREDIT CARRIES A NAME OR NOTHING');
 {
   const { cleanCreator } = require('./subject');

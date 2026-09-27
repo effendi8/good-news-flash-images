@@ -268,9 +268,19 @@ async function commonsFile(fileName, log) {
   if (/\bgfdl\b|gnu free documentation|\bgpl\b|\blgpl\b|free art licen[cs]e/i.test(licence)) {
     throw new Error(`licence requires its full text to be printed: ${licence}`);
   }
+  // A CREDIT THAT IS OWED NEEDS A NAME TO GIVE IT TO (audit 2026-09-27).
+  // "A name or nothing" is right for public domain and CC0; under CC BY or
+  // CC BY-SA "nothing" is a licence breach on a Page that may earn money.
+  // So a file whose author field is a note, blank or unusable is refused
+  // when the licence requires attribution, and the entry's next photo is
+  // tried, exactly like the GFDL case above.
+  const creator = cleanCreator(strip(val('Artist')));
+  if (owed && !creator) {
+    throw new Error(`credit is owed under ${licence || 'this licence'} but Commons names no author`);
+  }
   return {
     imageUrl: ii.thumburl || ii.url,
-    creator: cleanCreator(strip(val('Artist'))),
+    creator,
     licenceLabel: licence || 'see Wikimedia Commons',
     owedCredit: owed,
     source: 'Wikimedia Commons',
