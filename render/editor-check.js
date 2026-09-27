@@ -18,8 +18,9 @@
  * correct behaviour for any doubt is "no".
  *
  * It can never cost a Monday. No key, a refusal, a timeout, a malformed
- * answer: every one of those returns null, which the caller reads as "keep
- * going". The deck is more important than the check.
+ * answer: every one of those returns null. Since 2026-09-27 the caller reads
+ * null as "leave the picture out" (the number graphic takes its place),
+ * because an unchecked picture was wrong about one time in four.
  */
 
 const UA = 'GoodNewsDaily/1.0 (+https://www.linkedin.com/company/109379035)';
@@ -51,6 +52,8 @@ async function editorApproves(pic, slide, cfg, log) {
     (pic.subject ? 'THE PICTURE IS FILED AS: ' + pic.subject + '\n' : '') +
     '\nAnswer ONLY with JSON: {"ok": true|false, "why": "<at most 12 words>"}.\n\n' +
     'Say false unless the picture plainly shows the subject the story is about. ' +
+    'A different place, a different species, a different object, a different ' +
+    'person, or something that merely shares the name is a NO. ' +
     'A picture that is merely on the same theme is a NO. Rejecting costs us ' +
     'nothing: the slide falls back to a number graphic, which is always correct. ' +
     'The picture does not have to be of the event itself, and it may be a ' +

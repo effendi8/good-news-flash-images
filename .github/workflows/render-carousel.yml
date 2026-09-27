@@ -76,6 +76,9 @@ jobs:
         run: node render/render.js "${{ steps.pick.outputs.spec }}"
         env:
           PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
+          # The picture check (render/picture-rules.json). Without this
+          # secret every picture is left out and the slides show numbers.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Commit the deck
         if: steps.pick.outputs.spec != ''

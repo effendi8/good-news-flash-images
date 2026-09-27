@@ -111,27 +111,62 @@ function candidatePhrases(text) {
     .slice(0, 24);
 }
 
-/** The entity search. Returns up to three candidates; never throws. */
-async function findEntities(phrase, log) {
+/**
+ * ONE CANDIDATE, AND ONLY AN EXACT ONE (2026-09-27, after the test on 108
+ * published stories).
+ *
+ * The first version took up to three search results and used the first one
+ * that had a picture. Measured on a month of real stories, that is where most
+ * wrong pictures came from: when the right entry was rejected or had no
+ * picture, the loop moved on to whatever came next. "Amazon" became a
+ * skyscraper called Amazon Tower, "KEEP" became a castle keep in Spain,
+ * "Helvellyn" the title page of a piano score.
+ *
+ * So there is exactly one candidate now, found in this order:
+ *   1. The Wikipedia article whose title (or redirect) is the named subject.
+ *      A disambiguation page means the name is ambiguous ("Spectrum",
+ *      "NHS"), and an ambiguous name gets no picture.
+ *   2. Failing that, the database search, but only if its FIRST result
+ *      carries the named subject as its label or one of its names, exactly.
+ * If that one candidate is a setting, has no picture, or has a picture we
+ * cannot use, the answer is no picture. Never the next result.
+ */
+async function findEntity(phrase, log) {
+  const viaTitle = await byWikipediaTitle(phrase, log);
+  if (viaTitle === 'ambiguous') return null;
+  if (viaTitle) return viaTitle;
   try {
     const d = await json(`${WIKIDATA}?action=wbsearchentities&search=${encodeURIComponent(phrase)}` +
-      `&language=en&uselang=en&format=json&limit=3&origin=*`);
-    if (d.search && d.search.length) return d.search;
+      `&language=en&uselang=en&format=json&limit=1&origin=*`);
+    const hit = (d.search || [])[0];
+    if (!hit) return null;
+    const matched = (hit.match && hit.match.text) || hit.label || '';
+    if (sameName(matched, phrase)) return hit;
+    log(`    the database's first answer for "${phrase}" is "${hit.label}", not an exact match; no picture`);
   } catch (e) {
     log(`    entity search failed for "${phrase}": ${e.message}`);
   }
-  return byWikipediaTitle(phrase, log);
+  return null;
+}
+
+/** Same name, ignoring case, accents, punctuation and spacing. */
+function sameName(a, b) {
+  const n = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return !!n(a) && n(a) === n(b);
 }
 
 /**
- * THE SAME SUBJECT UNDER ANOTHER NAME (2026-09-27, the first real deck).
+ * THE NAMED SUBJECT'S OWN ARTICLE, which also finds it under another name
+ * (2026-09-27, the first real deck).
  *
  * The editor named "Kok-Aral Dam". The database files it as "Dike Kokaral"
  * and does not list the English name as an alias, so the search above came
  * back empty and a subject with a perfectly good picture got none. Wikipedia
  * keeps a redirect from every common name to the article, and the article
- * says which database entry it is. So when the search finds nothing, ask
- * Wikipedia which article the name leads to and take that entry.
+ * says which database entry it is. Since the 108-story test this is asked
+ * FIRST: an article title is an exact answer, a search result is a guess.
+ * Returns the entry, 'ambiguous' for a disambiguation page, or null.
  *
  * This is still the NAMED subject, looked up by another road; nothing is
  * guessed. The setting rule below still applies to what comes back, which
@@ -140,20 +175,26 @@ async function findEntities(phrase, log) {
 async function byWikipediaTitle(phrase, log) {
   try {
     const w = await json(`${WIKIPEDIA}?action=query&titles=${encodeURIComponent(phrase)}` +
-      `&redirects=1&prop=pageprops&ppprop=wikibase_item&format=json&origin=*`);
+      `&redirects=1&prop=pageprops&ppprop=wikibase_item|disambiguation&format=json&origin=*`);
     const page = Object.values((w.query && w.query.pages) || {})[0] || {};
+    if (page.pageprops && 'disambiguation' in page.pageprops) {
+      log(`    "${phrase}" could mean several things (a disambiguation page); no picture`);
+      return 'ambiguous';
+    }
     const qid = page.pageprops && page.pageprops.wikibase_item;
-    if (!qid) return [];
+    if (!qid) return null;
     const e = await json(`${WIKIDATA}?action=wbgetentities&ids=${qid}` +
       `&props=labels|descriptions&languages=en&format=json&origin=*`);
     const ent = (e.entities && e.entities[qid]) || {};
     const label = (ent.labels && ent.labels.en && ent.labels.en.value) || page.title || phrase;
     const description = (ent.descriptions && ent.descriptions.en && ent.descriptions.en.value) || '';
-    log(`    "${phrase}" is filed under another name: "${label}" (${qid}), via Wikipedia`);
-    return [{ id: qid, label, description, match: { text: phrase } }];
+    if (!sameName(label, phrase)) {
+      log(`    "${phrase}" is filed under another name: "${label}" (${qid}), via Wikipedia`);
+    }
+    return { id: qid, label, description, match: { text: phrase } };
   } catch (err) {
     log(`    Wikipedia lookup failed for "${phrase}": ${err.message}`);
-    return [];
+    return null;
   }
 }
 
@@ -229,13 +270,12 @@ async function commonsFile(fileName, log) {
 /**
  * The story's subject picture, or null.
  *
- * `text` is everything the editor wrote about the story: the summary and the
- * proof line. The label guard reads it, so the more of the editor's own words
- * it gets, the safer the match.
+ * `text` is everything the editor wrote about the story. It is no longer
+ * read here (the subject is named, and matched exactly); the argument stays
+ * so the callers do not change.
  */
 async function subjectPicture(text, named, log) {
   const say = log || (() => {});
-  const haystack = ' ' + String(text || '').toLowerCase() + ' ';
 
   // THE SUBJECT HAS TO BE NAMED, NOT GUESSED (2026-09-27, after three
   // rounds of trying to guess it).
@@ -255,53 +295,29 @@ async function subjectPicture(text, named, log) {
   // wrong picture is worse than no picture.
   //
   // So: no named subject, no picture. The number graphic is always right.
-  const phrases = named ? [named] : [];
-  if (!phrases.length) {
+  if (!named) {
     say('    no subject named for this story; a guessed one is not good enough');
     return null;
   }
   say(`    subject named by the editor: "${named}"`);
 
-  for (const phrase of phrases) {
-    for (const hit of await findEntities(phrase, say)) {
-      // THE GUARD: the thing the search returned has to be a thing the story
-      // actually names. Without it, "a farmer turned 70 acres" resolves to
-      // something confident and wrong.
-      //
-      // CHECK WHAT MATCHED, NOT THE LABEL. The first version compared the
-      // entity's label, and the label of a species is its scientific name:
-      // "pygmy hog" is filed as "Porcula salvania", which appears in no
-      // news story ever written, so the best match of the whole test set
-      // was thrown away silently. The search says which of its names the
-      // query hit, and that is the name to check. It also fixes spelling:
-      // "Andoya" in a summary against "Andøya" in the database.
-      // The "does the story name this?" guard exists to catch a GUESSED
-      // subject. A named one has already been chosen by something that read
-      // the article, and holding it to the story's exact spelling threw away
-      // "Andoya Space" because the summary wrote Andoya without its slashed
-      // o. So the guard applies only when we had to look for the subject
-      // ourselves, which today is never.
-      const matched = String((hit.match && hit.match.text) || hit.label || '').toLowerCase();
-      if (!named) {
-        if (!matched || matched.length < 4 || haystack.indexOf(' ' + matched) < 0) continue;
-      }
-      if (isSettingEntity(hit)) {
-        say(`    "${hit.label}" is where the story happened, not what it is about (${hit.description})`);
-        continue;
-      }
-
+  const hit = await findEntity(named, say);
+  if (hit) {
+    if (isSettingEntity(hit)) {
+      say(`    "${hit.label}" is where the story happened, not what it is about (${hit.description})`);
+    } else {
       const file = await entityImage(hit.id, say);
-      if (!file) continue;
-
-      try {
-        const pic = await commonsFile(file, say);
-        pic.subject = hit.label;
-        pic.qid = hit.id;
-        say(`    subject "${hit.label}" (${hit.id}) -> ${pic.licenceLabel}` +
-          (pic.owedCredit ? ' (credit owed)' : '') + ` by ${pic.creator || 'unknown'}`);
-        return pic;
-      } catch (e) {
-        say(`    "${hit.label}" has a picture we cannot use (${e.message}), next`);
+      if (file) {
+        try {
+          const pic = await commonsFile(file, say);
+          pic.subject = hit.label;
+          pic.qid = hit.id;
+          say(`    subject "${hit.label}" (${hit.id}) -> ${pic.licenceLabel}` +
+            (pic.owedCredit ? ' (credit owed)' : '') + ` by ${pic.creator || 'unknown'}`);
+          return pic;
+        } catch (e) {
+          say(`    "${hit.label}" has a picture we cannot use (${e.message})`);
+        }
       }
     }
   }

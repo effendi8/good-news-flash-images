@@ -171,11 +171,99 @@ console.log('\nA SUBJECT FILED UNDER ANOTHER NAME STILL GETS ITS PICTURE');
     .catch(() => null)
     .then(() => {
       global.fetch = realFetch;
-      check('"Kok-Aral Dam" finds nothing in the database search, so Wikipedia ' +
-        'is asked which entry the name leads to, and THAT entry\'s picture is looked up',
+      check('"Kok-Aral Dam" is asked of Wikipedia first, which leads to the entry ' +
+        'filed as "Dike Kokaral", and THAT entry\'s picture is looked up',
         asked.some((u) => /en\.wikipedia\.org/.test(u)) &&
         asked.some((u) => /wbgetclaims.*Q1166032/.test(u)));
     }));
+}
+
+// Offline stub for the next two blocks: every request is answered from a
+// table, and unanswered requests fail, so a test cannot pass by luck.
+function stubFetch(answers, asked) {
+  return async (url) => {
+    asked.push(url);
+    const hit = answers.find(([re]) => re.test(url));
+    return { ok: !!hit, status: hit ? 200 : 404, json: async () => (hit ? hit[1] : {}) };
+  };
+}
+
+console.log('\nONE CANDIDATE, EXACT, NEVER THE NEXT SEARCH RESULT (108-story test)');
+{
+  const { subjectPicture } = require('./subject');
+  const realFetch = global.fetch;
+
+  // "Spectrum" is a disambiguation page: the laser photo came from here.
+  const askedA = [];
+  const answersA = [
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'Spectrum', pageprops: { disambiguation: '' } } } } }],
+    [/wbsearchentities/, { search: [{ id: 'Q5', label: 'visible spectrum', match: { text: 'spectrum' } }] }],
+  ];
+  // Waits for every earlier network check, because they all swap the same
+  // global fetch and must not overlap.
+  pending.push(Promise.all(pending.slice())
+    .then(() => { global.fetch = stubFetch(answersA, askedA); })
+    .then(() => subjectPicture('The Spectrum rocket reached orbit.', 'Spectrum', () => {}))
+    .then((p) => {
+      check('AN AMBIGUOUS NAME GETS NO PICTURE: "Spectrum" was a laser for a rocket',
+        p === null && !askedA.some((u) => /wbsearchentities|wbgetclaims/.test(u)), JSON.stringify(askedA));
+    })
+    .then(() => {
+      // No article under that name, and the search's first answer is a
+      // different thing: the skyscraper for "Amazon", the castle for "KEEP".
+      const askedB = [];
+      global.fetch = stubFetch([
+        [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '-1': { title: 'KEEP', missing: '' } } } }],
+        [/wbsearchentities/, { search: [{ id: 'Q9', label: 'castle keep', match: { text: 'keep' } }] }],
+        [/wbgetclaims/, { claims: { P18: [{ rank: 'normal', mainsnak: { datavalue: { value: 'Castle.jpg' } } }] } }],
+      ], askedB);
+      return subjectPicture('The KEEP programme helps stroke patients.', 'KEEP programme', () => {})
+        .then((p) => {
+          check('A SEARCH RESULT THAT IS NOT AN EXACT MATCH IS REFUSED, not used',
+            p === null && !askedB.some((u) => /wbgetclaims/.test(u)), JSON.stringify(askedB));
+          check('and only ONE result is ever asked for, so there is no "next one" to fall to',
+            askedB.filter((u) => /wbsearchentities/.test(u)).every((u) => /limit=1\b/.test(u)));
+        });
+    })
+    .then(() => {
+      // The right entry exists but is a setting: it must end there, not move on.
+      const askedC = [];
+      global.fetch = stubFetch([
+        [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'Bhutan', pageprops: { wikibase_item: 'Q917' } } } } }],
+        [/wbgetentities/, { entities: { Q917: { labels: { en: { value: 'Bhutan' } }, descriptions: { en: { value: 'sovereign state in South Asia' } } } } }],
+      ], askedC);
+      return subjectPicture('Bhutan eliminated rabies.', 'Bhutan', () => {})
+        .then((p) => {
+          check('A REJECTED SETTING ENDS THE SEARCH: no second candidate is tried',
+            p === null && !askedC.some((u) => /wbsearchentities|wbgetclaims/.test(u)), JSON.stringify(askedC));
+        });
+    })
+    .finally(() => { global.fetch = realFetch; }));
+}
+
+console.log('\nNO CHECK, NO PICTURE');
+{
+  // The chooser with the check switched on and no key: the picture must be
+  // left out. The first version kept it.
+  const chooserPath = require.resolve('./chooser');
+  const subjectPath = require.resolve('./subject');
+  const keyBefore = process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+  pending.push(Promise.all(pending.slice()).then(async () => {
+    const realSubject = require.cache[subjectPath].exports.subjectPicture;
+    require.cache[subjectPath].exports.subjectPicture = async () => ({
+      imageUrl: 'https://example.org/x.jpg', subject: 'Deimos', licenceLabel: 'Public domain' });
+    delete require.cache[chooserPath];
+    const { choosePicture } = require('./chooser');
+    const lines = [];
+    const pic = await choosePicture({ summary: 'Deimos was mapped.', picture: { subject: 'Deimos' } },
+      (l) => lines.push(l));
+    require.cache[subjectPath].exports.subjectPicture = realSubject;
+    if (keyBefore) process.env.ANTHROPIC_API_KEY = keyBefore;
+    check('WITH THE CHECK ON AND NO KEY, THE PICTURE IS LEFT OUT (a number instead)',
+      pic === null && lines.some((l) => /could not run, so the picture is left out/.test(l)),
+      lines.join(' | '));
+  }));
 }
 
 console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
@@ -185,7 +273,8 @@ console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
   check('the subject picture is the rung that is ON', r.subjectPicture.enabled === true);
   check('THE LIBRARY SEARCH IS OFF: Stefan, 2026-09-27, a picture that is only ' +
     'thematically right is rejected', r.librarysearch.enabled === false);
-  check('the editor check is BUILT and OFF, as he asked', r.editorCheck.enabled === false);
+  check('the editor check is ON (Stefan\'s OK, 2026-09-27, after the 108-story test)',
+    r.editorCheck.enabled === true);
   check('every switch says in plain words what it is worth, so turning one on ' +
     'is an informed decision',
     [r.subjectPicture, r.librarysearch, r.editorCheck].every((x) => (x._why || '').length > 40));
