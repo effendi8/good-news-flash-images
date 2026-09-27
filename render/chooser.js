@@ -95,11 +95,25 @@ async function fetchBytes(pic, say) {
   }
 }
 
+/**
+ * NO CHECK, NO PICTURE (2026-09-27, after the 108-story test).
+ *
+ * The first version kept the picture whenever the check could not run: no
+ * key, a timeout, an answer it could not read. The test on a month of real
+ * stories found about one picture in four wrong, a laser for a rocket called
+ * Spectrum, a sailing ship for a company called Galeas, a park in Ghana for
+ * one in Rwanda. So once the check is switched on, a picture it has not
+ * approved does not go on a slide. That costs a picture, which the number
+ * graphic replaces, and never a Monday.
+ */
 async function passesEditor(pic, slide, r, say) {
   if (!(r.editorCheck && r.editorCheck.enabled)) return true;
   try {
     const verdict = await editorApproves(pic, slide, r.editorCheck, say);
-    if (verdict === null) return true;          // the check could not run
+    if (verdict === null) {
+      say('    the editor check could not run, so the picture is left out');
+      return false;
+    }
     if (!verdict.ok) {
       say(`    the editor rejected this picture: ${verdict.why}`);
       return false;
@@ -107,9 +121,8 @@ async function passesEditor(pic, slide, r, say) {
     say(`    the editor accepted this picture: ${verdict.why}`);
     return true;
   } catch (e) {
-    // A failing check must never turn into a failing deck.
-    say(`    the editor check failed (${e.message}); keeping the picture`);
-    return true;
+    say(`    the editor check failed (${e.message}), so the picture is left out`);
+    return false;
   }
 }
 
