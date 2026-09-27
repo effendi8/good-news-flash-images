@@ -21,9 +21,15 @@
  *      the other pages get a proper masthead and give the rest to the
  *      picture.
  *   3. The document title is displayed as a heading, so it is content.
- *   4. Nothing on a slide is clickable in the feed. Links are embedded
- *      anyway, because a reader who downloads the PDF does get them, and
- *      that costs nothing.
+ *   4. Nothing on a slide is clickable in the feed. The post text is the
+ *      only click path, and the closing page says so.
+ *   5. LINKEDIN DARKENS THE BOTTOM OF EVERY PAGE in its full-screen viewer
+ *      and puts its like, comment and repost buttons over the right edge
+ *      (Stefan's screenshots, 2026-09-27). Measured on them: the fade starts
+ *      about two thirds down and the buttons sit in the right 120px from
+ *      there to the bottom. So the story pages carry no footer, keep their
+ *      words out of the bottom 200px and away from the right edge, and show
+ *      no page number, which LinkedIn prints above the page anyway.
  */
 
 const NAVY = '#003366';
@@ -96,10 +102,7 @@ function storySlide(s, i, total) {
       <p class="summary">${esc(s.summary)}</p>
       ${s.proves ? `<p class="proves"><span>What it proves:</span> ${esc(s.proves)}</p>` : ''}
     </div>
-    <div class="foot">
-      <span class="src">${esc(s.outlet)}</span>
-      <span class="pg">${i} / ${total}</span>
-    </div>
+    <div class="strip"></div>
   </section>`;
   }
 
@@ -119,10 +122,7 @@ function storySlide(s, i, total) {
       <p class="summary">${esc(s.summary)}</p>
       ${s.proves ? `<p class="proves"><span>What it proves:</span> ${esc(s.proves)}</p>` : ''}
     </div>
-    <div class="foot">
-      <span class="src">${esc(s.outlet)}</span>
-      <span class="pg">${i} / ${total}</span>
-    </div>
+    <div class="strip"></div>
   </section>`;
 }
 
@@ -204,17 +204,20 @@ function coverSlide(spec) {
     </div>
     <div class="foot">
       <span class="src">Verified sources · published daily</span>
-      <span class="pg">1 / ${spec.slides.length + 2}</span>
     </div>
   </section>`;
 }
 
 /**
- * The closing page. It carries the five addresses in full, because the
- * caption is the only click path a document post has, and the picture
- * credits as a list, which is belt and braces for the rare picture whose
- * licence demands one (Stefan, 2026-09-27: placement A "plus C's list on the
- * last page anyway").
+ * The closing page: where the links are, the quote, and the picture credits
+ * as a list, which is belt and braces for the rare picture whose licence
+ * demands one (Stefan, 2026-09-27: placement A "plus C's list on the last
+ * page anyway").
+ *
+ * THE OUTLET LIST IS GONE (Stefan, 2026-09-27, on his phone): the page was
+ * hard to read, thin letters in the half LinkedIn darkens, and "no one cares
+ * what the news channels are". One large line in the top half says where
+ * the stories are, and the quote gets heavier letters.
  */
 function closingSlide(spec) {
   const credits = spec.slides
@@ -226,24 +229,15 @@ function closingSlide(spec) {
   <section class="page closing">
     <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
     <div class="body closing-body">
-      <h2>Read any of them</h2>
-      <p class="where">Every link is in the post text, just above this deck.</p>
-      <ol class="links">
-        ${spec.slides.map((s) => `<li><a href="${esc(s.url)}">${esc(s.outlet || shortUrl(s.url))}</a></li>`).join('')}
-      </ol>
+      <p class="pointer">All ${spec.slides.length === 5 ? 'five' : spec.slides.length} stories are linked in the post text above.</p>
       ${spec.quote && spec.quote.text
         ? `<p class="quote">“${esc(spec.quote.text)}”<span>${esc(spec.quote.by)}</span></p>` : ''}
       ${unique.length ? `<p class="credits">Pictures: ${esc(unique.join('; '))}</p>` : ''}
     </div>
     <div class="foot">
       <span class="src">Follow the Page for one good story a day</span>
-      <span class="pg">${spec.slides.length + 2} / ${spec.slides.length + 2}</span>
     </div>
   </section>`;
-}
-
-function shortUrl(u) {
-  return String(u || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
 }
 
 function humanWeek(monday) {
@@ -260,7 +254,7 @@ function buildHtml(spec) {
 <html lang="en"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap">
 <style>
   @page { size: ${W}px ${H}px; margin: 0; }
   * { box-sizing: border-box; }
@@ -286,8 +280,12 @@ function buildHtml(spec) {
     background: ${NAVY};
     display: flex; align-items: center; justify-content: center;
   }
+  /* Page one's clear zone. LinkedIn's title label covers about the top
+     195px of it in the feed (measured on Stefan's screenshot, 2026-09-27),
+     so 205px keeps the sun clear of it and gives the rest to the words. It
+     was 270px, a fifth of the page. */
   .cover .clear, .page.overlaid .clear {
-    height: ${Math.round(H * 0.2)}px;
+    height: 205px;
   }
   .kicker {
     font-size: 48px; letter-spacing: .14em; text-transform: uppercase;
@@ -328,10 +326,16 @@ function buildHtml(spec) {
      is the last line of defence. Neither is the real fix: render.js measures
      every page and steps the type down until it fits, because a sentence cut
      off by the yellow band is a bug a reader sees. */
-  .photo.tall { flex: 0 0 ${Math.round(H * 0.50)}px; }
-  .body { flex: 1 1 auto; min-height: 0; padding: 58px 72px 38px; overflow: hidden; }
+  /* 44 percent, down from half (2026-09-27): the words lost the bottom
+     200px and the right edge to LinkedIn's fade and buttons, and on the
+     longest summary of the first real week the type had shrunk to its
+     floor to fit. The picture gives the difference back. */
+  .photo.tall { flex: 0 0 ${Math.round(H * 0.44)}px; }
+  /* Right 136px and bottom 184px (plus the 16px strip) are LinkedIn's:
+     its buttons and its fade (constraint 5 at the top of this file). */
+  .body { flex: 1 1 auto; min-height: 0; padding: 58px 136px 184px 72px; overflow: hidden; }
   /* A page with no picture: the words get the whole slide. */
-  .body.big { display: flex; flex-direction: column; justify-content: center; padding: 64px 72px 54px; }
+  .body.big { display: flex; flex-direction: column; justify-content: center; padding: 64px 136px 184px 72px; }
   .body.big .summary { font-size: 80px; line-height: 1.08; }
   .body.big .proves { font-size: 46px; margin-top: 56px; }
   .lead-figure {
@@ -350,7 +354,6 @@ function buildHtml(spec) {
     padding: 0 72px; font-size: 30px; font-weight: 600;
   }
 
-  .cover .clear { height: ${Math.round(H * 0.2)}px; }
   .cover-body { flex: 1 1 auto; display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 0 84px; text-align: center; }
   .sun { width: 118px; height: 118px; border-radius: 50%; background: ${YELLOW};
@@ -363,19 +366,14 @@ function buildHtml(spec) {
     max-width: 24em; border-top: 5px solid ${YELLOW}; padding-top: 34px;
   }
 
-  .closing-body h2 { font-size: 60px; font-weight: 700; color: ${NAVY}; margin: 0 0 34px; }
-  .links { margin: 0; padding-left: 46px; }
-  /* Outlet names, not addresses. NOTHING ON A SLIDE IS TAPPABLE in the feed
-     (Stefan on his phone, 2026-09-27: "there is no way to click into the
-     story"), so a wall of raw URLs looks like a link and is not one, which
-     is worse than not showing it. The names say which five outlets, the
-     line above says where the real links are, and the anchors underneath
-     still work for anyone who downloads the file. */
-  .links li { font-size: 38px; line-height: 1.7; }
-  .where { font-size: 36px; color: ${GREEN}; font-style: italic; margin: 0 0 34px; }
-  .links a { color: ${INK}; text-decoration: none; }
-  .quote { font-size: 40px; font-style: italic; color: #2B3746; margin: 48px 0 0; line-height: 1.34; }
-  .quote span { display: block; font-style: normal; font-weight: 600; margin-top: 14px; font-size: 32px; }
+  /* The brand's yellow, kept as a thin line where the footer used to be:
+     anything taller sits under LinkedIn's fade and turns olive. */
+  .strip { flex: 0 0 16px; background: ${YELLOW}; }
+
+  .closing-body { padding-right: 72px; }
+  .pointer { font-size: 76px; line-height: 1.12; font-weight: 700; color: ${NAVY}; margin: 0; }
+  .quote { font-size: 54px; font-style: italic; font-weight: 600; color: ${INK}; margin: 80px 0 0; line-height: 1.28; }
+  .quote span { display: block; font-style: normal; font-weight: 700; margin-top: 22px; font-size: 42px; }
   /* The picture credits are the ONE thing that stays small on purpose: they
      are a legal record, not something anybody reads. */
   .credits { font-size: 20px; color: #6B7885; margin: 44px 0 0; line-height: 1.5; }
