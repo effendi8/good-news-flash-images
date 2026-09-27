@@ -91,7 +91,6 @@ function storySlide(s, i, total) {
     const n = (s.numbers || [])[0];
     return `
   <section class="page text-only">
-    <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
     <div class="body big">
       ${n ? `<p class="lead-figure">${esc(n)}</p>` : ''}
       <p class="summary">${esc(s.summary)}</p>
@@ -104,10 +103,16 @@ function storySlide(s, i, total) {
   </section>`;
   }
 
+  // NO MASTHEAD ON A STORY PAGE (2026-09-27, Stefan: "you should make better
+  // use of the space"). The name was repeating on all seven pages and
+  // costing a tenth of each one, to say something the reader already knows
+  // by page three and which the cover, the closing page and the post itself
+  // all say anyway. The picture now runs to the top edge and the words get
+  // the rest. Only page one keeps a clear zone, because only page one is
+  // overlaid by LinkedIn's own title.
   return `
   <section class="page">
-    <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
-    <div class="photo" style="background-image:url('${pic.dataUri}')">
+    <div class="photo tall" style="background-image:url('${pic.dataUri}')">
       ${credit ? `<div class="whisper">${esc(credit)}</div>` : ''}
     </div>
     <div class="body">
@@ -261,7 +266,7 @@ function buildHtml(spec) {
     height: ${Math.round(H * 0.2)}px;
   }
   .kicker {
-    font-size: 36px; letter-spacing: .16em; text-transform: uppercase;
+    font-size: 48px; letter-spacing: .14em; text-transform: uppercase;
     color: #fff; font-weight: 700;
   }
   .kicker em { font-style: normal; color: ${YELLOW}; }
@@ -299,23 +304,26 @@ function buildHtml(spec) {
      is the last line of defence. Neither is the real fix: render.js measures
      every page and steps the type down until it fits, because a sentence cut
      off by the yellow band is a bug a reader sees. */
-  .body { flex: 1 1 auto; min-height: 0; padding: 54px 72px 34px; overflow: hidden; }
+  .photo.tall { flex: 0 0 ${Math.round(H * 0.50)}px; }
+  .body { flex: 1 1 auto; min-height: 0; padding: 58px 72px 38px; overflow: hidden; }
   /* A page with no picture: the words get the whole slide. */
   .body.big { display: flex; flex-direction: column; justify-content: center; padding: 64px 72px 54px; }
-  .body.big .summary { font-size: 76px; line-height: 1.1; }
-  .body.big .proves { font-size: 38px; margin-top: 52px; }
+  .body.big .summary { font-size: 80px; line-height: 1.08; }
+  .body.big .proves { font-size: 46px; margin-top: 56px; }
   .lead-figure {
     font-size: 120px; line-height: 1; font-weight: 700; color: ${NAVY};
     margin: 0 0 40px; letter-spacing: -.02em;
   }
-  .summary { font-size: 58px; line-height: 1.16; font-weight: 600; margin: 0; letter-spacing: -.01em; }
-  .proves { font-size: 33px; line-height: 1.34; margin: 40px 0 0; color: #3A4756; }
+  .summary { font-size: 62px; line-height: 1.14; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+  /* 33px measured about 12px on his phone. Nothing on a slide may be set
+     smaller than this (Stefan, 2026-09-27). */
+  .proves { font-size: 42px; line-height: 1.3; margin: 42px 0 0; color: #2B3746; }
   .proves span { font-weight: 700; color: ${GREEN}; }
 
   .foot {
-    flex: 0 0 96px; background: ${YELLOW}; color: #1A1508;
+    flex: 0 0 104px; background: ${YELLOW}; color: #1A1508;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 72px; font-size: 26px; font-weight: 600;
+    padding: 0 72px; font-size: 30px; font-weight: 600;
   }
 
   .cover .clear { height: ${Math.round(H * 0.2)}px; }
@@ -323,15 +331,15 @@ function buildHtml(spec) {
     align-items: center; justify-content: center; padding: 0 84px; text-align: center; }
   .sun { width: 118px; height: 118px; border-radius: 50%; background: ${YELLOW};
     box-shadow: 0 0 0 12px rgba(255,193,7,.28); margin-bottom: 64px; }
-  .cover h1 { font-size: 86px; line-height: 1.08; font-weight: 700; color: ${NAVY};
+  .cover h1 { font-size: 92px; line-height: 1.08; font-weight: 700; color: ${NAVY};
     margin: 0; letter-spacing: -.02em; }
-  .cover .sub { font-size: 34px; color: ${GREEN}; font-style: italic; margin: 40px 0 0; }
+  .cover .sub { font-size: 44px; color: ${GREEN}; font-style: italic; margin: 40px 0 0; }
   .cover .zoom {
-    font-size: 30px; line-height: 1.38; color: #3A4756; margin: 56px 0 0;
+    font-size: 38px; line-height: 1.34; color: #2B3746; margin: 52px 0 0;
     max-width: 24em; border-top: 5px solid ${YELLOW}; padding-top: 34px;
   }
 
-  .closing-body h2 { font-size: 54px; font-weight: 700; color: ${NAVY}; margin: 0 0 34px; }
+  .closing-body h2 { font-size: 60px; font-weight: 700; color: ${NAVY}; margin: 0 0 34px; }
   .links { margin: 0; padding-left: 46px; }
   /* Outlet names, not addresses. NOTHING ON A SLIDE IS TAPPABLE in the feed
      (Stefan on his phone, 2026-09-27: "there is no way to click into the
@@ -339,12 +347,14 @@ function buildHtml(spec) {
      is worse than not showing it. The names say which five outlets, the
      line above says where the real links are, and the anchors underneath
      still work for anyone who downloads the file. */
-  .links li { font-size: 32px; line-height: 1.75; }
-  .where { font-size: 28px; color: ${GREEN}; font-style: italic; margin: 0 0 30px; }
+  .links li { font-size: 38px; line-height: 1.7; }
+  .where { font-size: 36px; color: ${GREEN}; font-style: italic; margin: 0 0 34px; }
   .links a { color: ${INK}; text-decoration: none; }
-  .quote { font-size: 30px; font-style: italic; color: #3A4756; margin: 44px 0 0; line-height: 1.4; }
-  .quote span { display: block; font-style: normal; font-weight: 600; margin-top: 12px; font-size: 25px; }
-  .credits { font-size: 17px; color: #7C8895; margin: 40px 0 0; line-height: 1.5; }
+  .quote { font-size: 40px; font-style: italic; color: #2B3746; margin: 48px 0 0; line-height: 1.34; }
+  .quote span { display: block; font-style: normal; font-weight: 600; margin-top: 14px; font-size: 32px; }
+  /* The picture credits are the ONE thing that stays small on purpose: they
+     are a legal record, not something anybody reads. */
+  .credits { font-size: 20px; color: #6B7885; margin: 44px 0 0; line-height: 1.5; }
 </style></head>
 <body>
 ${coverSlide(spec)}

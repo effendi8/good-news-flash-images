@@ -101,9 +101,12 @@ async function main() {
         if (!body) return;
         const fits = () => body.scrollHeight <= body.clientHeight;
         const big = body.classList.contains('big');
+        // THE FLOOR IS 34px, which is about 12px on a phone. Below that
+        // Stefan could not read it (2026-09-27), so the type stops
+        // shrinking there and the warning below fires instead.
         const sizes = big
-          ? [[76, 38], [68, 36], [60, 34], [54, 32], [48, 30], [42, 27]]
-          : [[58, 33], [52, 31], [47, 29], [43, 27], [39, 25], [35, 23]];
+          ? [[80, 46], [72, 44], [64, 42], [56, 38], [48, 36], [42, 34]]
+          : [[62, 42], [56, 40], [50, 38], [46, 36], [42, 35], [38, 34]];
         const sum = body.querySelector('.summary');
         const pr = body.querySelector('.proves');
         for (const [a, b] of sizes) {

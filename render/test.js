@@ -97,8 +97,17 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   check('and a story with no figure at all still renders its page',
     html.indexOf(spec.slides[4].summary) >= 0);
 
-  check('the top fifth of every page is the clear zone LinkedIn overlays',
-    (html.match(/class="clear"/g) || []).length === spec.slides.length + 2);
+  // Only PAGE ONE is overlaid by LinkedIn's own title and caption, so only
+  // page one holds a clear zone. Repeating it on all seven cost a tenth of
+  // every slide and said nothing (Stefan, 2026-09-27: "you should make
+  // better use of the space").
+  check('NO STORY PAGE carries the masthead any more: the picture runs to the ' +
+    'top edge and the words get the rest',
+    (html.match(/class="clear"/g) || []).length === 2 &&
+    !/text-only"[\s\S]{0,80}class="clear"/.test(html),
+    String((html.match(/class="clear"/g) || []).length));
+  check('the cover keeps its clear zone, because only page one is overlaid ' +
+    'by LinkedIn\'s own title', /page cover">\s*<div class="clear">/.test(html));
 
   check('the page is 4:5, not A4: A4 leaves black bars in the viewer',
     /size: 1080px 1350px/.test(html));
