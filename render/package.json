@@ -1,0 +1,12 @@
+{
+  "name": "gnd-carousel-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Renders the Good News Daily Monday carousel from a spec written by the Apps Script project.",
+  "scripts": {
+    "render": "node render.js"
+  },
+  "dependencies": {
+    "puppeteer": "24.10.2"
+  }
+}

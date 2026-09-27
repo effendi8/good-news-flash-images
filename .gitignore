@@ -1,0 +1,5 @@
+# The renderer's dependencies are installed by the workflow, never committed.
+render/node_modules/
+# Build artefacts of a local render. The workflow commits the PDF and the PNG
+# it produces; nothing else from a run belongs in the repo.
+carousel/*.html
