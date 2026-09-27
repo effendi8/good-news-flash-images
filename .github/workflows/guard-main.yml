@@ -1,0 +1,66 @@
+name: main only moves by a pull request
+
+# WHY THIS EXISTS. On 2026-09-27 five changes reached main in this repository
+# by a direct push, all of them mine, in the hour after the routine had been
+# broken twice in the other repository on the same day. Stefan's standard is
+# that main is live everywhere and only moves when he presses Merge. Writing
+# that down has now failed three times, so it is a check instead.
+#
+# WHY NOT THE BUILT-IN SETTING. GitHub can refuse every direct push to a
+# branch, and that would break this repository: the rendering job has to
+# commit the finished deck to main every Sunday evening. So the rule cannot
+# be "nobody pushes", it has to be "nobody pushes CODE".
+#
+# WHAT IS ALLOWED WITHOUT A PULL REQUEST, and nothing else:
+#   - carousel/*.pdf, *.png, *.json   the deck and the week's stories
+#   - anything pushed by the renderer itself
+# Everything else on a direct push fails this check loudly. It cannot undo
+# the push, GitHub has no mechanism for that, but it turns a silent breach
+# into a red mark on the commit and an email.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Was this a merge, a deck, or a breach?
+        run: |
+          set -uo pipefail
+
+          if [ "${{ github.actor }}" = "carousel-renderer" ]; then
+            echo "The renderer committing a deck. Allowed."
+            exit 0
+          fi
+
+          PARENTS=$(git rev-list --parents -n 1 HEAD | wc -w | tr -d ' ')
+          if [ "$PARENTS" -ge 3 ]; then
+            echo "A merge commit, so it came through a pull request. Allowed."
+            exit 0
+          fi
+
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          if [ -z "$CHANGED" ]; then
+            echo "Nothing to judge."
+            exit 0
+          fi
+          echo "Files in this push:"
+          echo "$CHANGED" | sed 's/^/  /'
+
+          OFFENDING=$(echo "$CHANGED" | grep -vE '^carousel/[0-9-]+\.(pdf|png|json)$' || true)
+          if [ -n "$OFFENDING" ]; then
+            echo ""
+            echo "REFUSED: code reached main without a pull request."
+            echo "$OFFENDING" | sed 's/^/  /'
+            echo ""
+            echo "main is what is live, in every repository, and it moves when"
+            echo "Stefan presses Merge. Open a pull request and revert this push."
+            exit 1
+          fi
+          echo "Only deck files. Allowed."
