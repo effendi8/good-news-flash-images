@@ -219,18 +219,22 @@ function isSettingEntity(hit) {
   return /\b(country|sovereign state|state of the|federal state|city|town|village|municipality|county|province|region|district|capital|borough|commune|prefecture|canton)\b/.test(d);
 }
 
-/** The picture an entity carries (property P18), or ''. */
-async function entityImage(qid, log) {
+/**
+ * Every picture the entry carries (property P18), the maintained choice
+ * first, or []. They are all pictures of the SAME subject, so trying the
+ * next one is not the fall-through the 108-story test condemned: that was
+ * moving on to a different thing. This is a second photograph of the same
+ * elephant entry when the first one's licence will not fit on a slide.
+ */
+async function entityImages(qid, log) {
   try {
     const d = await json(`${WIKIDATA}?action=wbgetclaims&entity=${qid}&property=P18&format=json&origin=*`);
     const c = (d.claims && d.claims.P18) || [];
-    // Wikidata ranks its own statements; a "preferred" one is the maintained
-    // choice and beats whatever happens to be first.
-    const best = c.find((x) => x.rank === 'preferred') || c[0];
-    return (best && best.mainsnak && best.mainsnak.datavalue && best.mainsnak.datavalue.value) || '';
+    const ranked = c.filter((x) => x.rank === 'preferred').concat(c.filter((x) => x.rank === 'normal'));
+    return ranked.map((x) => x.mainsnak && x.mainsnak.datavalue && x.mainsnak.datavalue.value).filter(Boolean);
   } catch (e) {
     log(`    P18 lookup failed for ${qid}: ${e.message}`);
-    return '';
+    return [];
   }
 }
 
@@ -256,6 +260,13 @@ async function commonsFile(fileName, log) {
   if (restrictions) throw new Error(`file carries restrictions: ${restrictions}`);
   if (/non-?commercial|\bnc\b|no derivative|\bnd\b/i.test(licence)) {
     throw new Error(`licence is not usable commercially: ${licence}`);
+  }
+  // A LICENCE THAT WANTS ITS OWN TEXT PRINTED does not fit on a slide
+  // (2026-09-27: the African elephant came back under GFDL 1.2, which
+  // requires a copy of the licence to travel with the picture). Public
+  // domain and the simple credit licences only.
+  if (/\bgfdl\b|gnu free documentation|\bgpl\b|\blgpl\b|free art licen[cs]e/i.test(licence)) {
+    throw new Error(`licence requires its full text to be printed: ${licence}`);
   }
   return {
     imageUrl: ii.thumburl || ii.url,
@@ -306,8 +317,7 @@ async function subjectPicture(text, named, log) {
     if (isSettingEntity(hit)) {
       say(`    "${hit.label}" is where the story happened, not what it is about (${hit.description})`);
     } else {
-      const file = await entityImage(hit.id, say);
-      if (file) {
+      for (const file of (await entityImages(hit.id, say)).slice(0, 3)) {
         try {
           const pic = await commonsFile(file, say);
           pic.subject = hit.label;
@@ -316,7 +326,7 @@ async function subjectPicture(text, named, log) {
             (pic.owedCredit ? ' (credit owed)' : '') + ` by ${pic.creator || 'unknown'}`);
           return pic;
         } catch (e) {
-          say(`    "${hit.label}" has a picture we cannot use (${e.message})`);
+          say(`    "${hit.label}" has a picture we cannot use (${e.message}); its next picture, if any`);
         }
       }
     }

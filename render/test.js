@@ -241,6 +241,41 @@ console.log('\nONE CANDIDATE, EXACT, NEVER THE NEXT SEARCH RESULT (108-story tes
     .finally(() => { global.fetch = realFetch; }));
 }
 
+console.log('\nTHE CHECK JUDGES THE SUBJECT, AND A LICENCE MUST FIT ON A SLIDE');
+{
+  // Reads the question the check sends, without calling any model.
+  const src = require('fs').readFileSync(require.resolve('./editor-check'), 'utf8');
+  check('A PHOTO OF THE NAMED SPECIES IS A YES even when the story is about one ' +
+    'young animal: the first live run refused the elephant for being an adult',
+    /THE SUBJECT, NOT THE MOMENT/.test(src) && /young one/.test(src));
+  check('and a different species, place or person is still a NO',
+    /a different species/.test(src) && /merely shares the name is a NO/.test(src));
+
+  const askedL = [];
+  const answersL = [
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'African elephant', pageprops: { wikibase_item: 'Q185038' } } } } }],
+    [/wbgetentities/, { entities: { Q185038: { labels: { en: { value: 'African elephant' } }, descriptions: { en: { value: 'genus of mammals' } } } } }],
+    [/wbgetclaims/, { claims: { P18: [
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant.jpg' } } },
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant2.jpg' } } }] } }],
+    [/commons\.wikimedia\.org.*Elephant2/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e2.jpg', extmetadata: {
+      LicenseShortName: { value: 'Public domain' } } }] } } } }],
+    [/commons\.wikimedia\.org/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e.jpg', extmetadata: {
+      LicenseShortName: { value: 'GFDL 1.2' }, AttributionRequired: { value: 'true' } } }] } } } }],
+  ];
+  const { subjectPicture } = require('./subject');
+  pending.push(Promise.all(pending.slice())
+    .then(() => { const rf = global.fetch; global.fetch = stubFetch(answersL, askedL);
+      return subjectPicture('An elephant calf was raised.', 'African elephant', () => {})
+        .finally(() => { global.fetch = rf; }); })
+    .then((p) => {
+      check('A GFDL PICTURE IS REFUSED, and the SAME entry\'s next photo is used ' +
+        'instead (the public-domain elephant), never a different entry',
+        p && p.imageUrl === 'https://x/e2.jpg' && p.licenceLabel === 'Public domain' &&
+        askedL.filter((u) => /wbsearchentities/.test(u)).length === 0, JSON.stringify(p));
+    }));
+}
+
 console.log('\nNO CHECK, NO PICTURE');
 {
   // The chooser with the check switched on and no key: the picture must be
