@@ -12,8 +12,14 @@
  * FOUR CONSTRAINTS LEARNED FROM THE REAL PROBE POST (2026-09-26), not from
  * documentation. They are not style preferences:
  *   1. 4:5 portrait. A4 leaves heavy black bars in LinkedIn's viewer.
- *   2. The top fifth of every page stays free of anything that carries
+ *   2. The top fifth of PAGE ONE stays free of anything that carries
  *      meaning: LinkedIn overlays the document title and the caption there.
+ *      CORRECTED 2026-09-27 (Stefan): that overlay lands on the first page
+ *      only, and the first version applied the rule to all seven. A fifth of
+ *      every slide was held empty for nothing, carrying a masthead at 21px
+ *      that measures about 8px on a phone. Page one keeps its clear zone;
+ *      the other pages get a proper masthead and give the rest to the
+ *      picture.
  *   3. The document title is displayed as a heading, so it is content.
  *   4. Nothing on a slide is clickable in the feed. Links are embedded
  *      anyway, because a reader who downloads the PDF does get them, and
@@ -70,7 +76,7 @@ function storySlide(s, i, total) {
     : numberBlock(s);
   return `
   <section class="page">
-    <div class="clear"><span class="kicker">Good News Daily · the week's best</span></div>
+    <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
     ${picBlock}
     <div class="body">
       <p class="summary">${esc(s.summary)}</p>
@@ -142,7 +148,7 @@ function closingSlide(spec) {
   const unique = credits.filter((c, i) => credits.indexOf(c) === i);
   return `
   <section class="page closing">
-    <div class="clear"><span class="kicker">Good News Daily</span></div>
+    <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
     <div class="body closing-body">
       <h2>The stories, in full</h2>
       <ol class="links">
@@ -193,21 +199,27 @@ function buildHtml(spec) {
   }
   .page:last-child { page-break-after: auto; break-after: auto; }
 
-  /* Constraint 2: the top fifth carries nothing that matters, because
-     LinkedIn's viewer prints the document title and the caption over it. */
+  /* The masthead band. On PAGE ONE it is a clear zone a fifth of the page
+     deep and carries nothing, because LinkedIn's viewer prints the document
+     title and the caption over it. Everywhere else it is a masthead: half
+     the depth, so the picture gets the difference, and set large enough to
+     read on a phone, where a 1080px slide is about 400px wide. */
   .clear {
-    height: ${Math.round(H * 0.2)}px;
+    height: ${Math.round(H * 0.105)}px;
     background: ${NAVY};
-    display: flex; align-items: flex-start; justify-content: center;
-    padding-top: 34px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cover .clear, .page.overlaid .clear {
+    height: ${Math.round(H * 0.2)}px;
   }
   .kicker {
-    font-size: 21px; letter-spacing: .22em; text-transform: uppercase;
-    color: rgba(255,255,255,.55); font-weight: 600;
+    font-size: 36px; letter-spacing: .16em; text-transform: uppercase;
+    color: #fff; font-weight: 700;
   }
+  .kicker em { font-style: normal; color: ${YELLOW}; }
 
   .photo {
-    flex: 0 0 ${Math.round(H * 0.40)}px;
+    flex: 0 0 ${Math.round(H * 0.475)}px;
     background-size: cover; background-position: center;
     position: relative;
   }
