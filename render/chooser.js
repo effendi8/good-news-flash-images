@@ -17,7 +17,7 @@
 const fs = require('fs');
 const path = require('path');
 const { subjectPicture } = require('./subject');
-const { pictureFor: libraryPicture } = require('./pictures');
+const { pictureFor: libraryPicture, inline } = require('./pictures');
 const { editorApproves } = require('./editor-check');
 
 function rules() {
@@ -48,7 +48,7 @@ async function choosePicture(slide, log) {
     catch (e) { say(`    subject picture threw (${e.message})`); }
     if (pic) {
       pic.kind = 'subject';
-      if (await passesEditor(pic, slide, r, say)) return pic;
+      if (await passesEditor(pic, slide, r, say) && await fetchBytes(pic, say)) return pic;
     }
   }
 
@@ -61,12 +61,38 @@ async function choosePicture(slide, log) {
     }
     if (pic) {
       pic.kind = 'library';
-      if (await passesEditor(pic, slide, r, say)) return pic;
+      if (await passesEditor(pic, slide, r, say) && await fetchBytes(pic, say)) return pic;
     }
   }
 
   say('    -> the story\'s own number it is');
   return null;
+}
+
+/**
+ * THE PICTURE HAS TO BE DOWNLOADED, AND THIS IS WHERE THE FIRST REAL DECK
+ * FAILED (2026-09-27, found by Stefan on his phone: "none of the stories has
+ * a picture").
+ *
+ * The subject rung returned a perfectly good picture and its address, and
+ * nothing ever fetched the bytes. The page draws from an embedded copy, so
+ * every slide silently fell back to its number graphic while the log
+ * cheerfully reported three pictures found. The library rung did its own
+ * downloading inside itself, which is exactly why the gap was invisible:
+ * one path carried bytes and the other carried a promise, and the caller
+ * could not tell them apart.
+ *
+ * So downloading belongs HERE, once, after the choice, for every rung.
+ */
+async function fetchBytes(pic, say) {
+  if (pic.dataUri) return true;
+  try {
+    pic.dataUri = await inline(pic.imageUrl);
+    return true;
+  } catch (e) {
+    say(`    the picture could not be downloaded (${e.message}); next rung`);
+    return false;
+  }
 }
 
 async function passesEditor(pic, slide, r, say) {

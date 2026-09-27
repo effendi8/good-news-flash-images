@@ -76,15 +76,40 @@ function creditLine(pic) {
 function storySlide(s, i, total) {
   const pic = s.resolvedPicture;
   const credit = creditLine(pic);
-  const picBlock = pic && pic.dataUri
-    ? `<div class="photo" style="background-image:url('${pic.dataUri}')">
-         ${credit ? `<div class="whisper">${esc(credit)}</div>` : ''}
-       </div>`
-    : numberBlock(s);
+
+  // NO PICTURE MEANS A TYPOGRAPHIC PAGE, NOT AN EMPTY ONE (2026-09-27,
+  // Stefan on his phone). The first version kept the picture's half of the
+  // slide whatever happened and filled it with navy, a lone word in yellow,
+  // or a ghosted wordmark. On a phone that reads as a page that failed to
+  // load: six tenths of it saying nothing while the sentence is squeezed
+  // into the bottom third and gets hard to read.
+  //
+  // A page with nothing to show should give its space to the words instead.
+  // The figure, when there is one, sits ABOVE the sentence as part of the
+  // same composition rather than marooned in its own block.
+  if (!pic || !pic.dataUri) {
+    const n = (s.numbers || [])[0];
+    return `
+  <section class="page text-only">
+    <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
+    <div class="body big">
+      ${n ? `<p class="lead-figure">${esc(n)}</p>` : ''}
+      <p class="summary">${esc(s.summary)}</p>
+      ${s.proves ? `<p class="proves"><span>What it proves:</span> ${esc(s.proves)}</p>` : ''}
+    </div>
+    <div class="foot">
+      <span class="src">${esc(s.outlet)}</span>
+      <span class="pg">${i} / ${total}</span>
+    </div>
+  </section>`;
+  }
+
   return `
   <section class="page">
     <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
-    ${picBlock}
+    <div class="photo" style="background-image:url('${pic.dataUri}')">
+      ${credit ? `<div class="whisper">${esc(credit)}</div>` : ''}
+    </div>
     <div class="body">
       <p class="summary">${esc(s.summary)}</p>
       ${s.proves ? `<p class="proves"><span>What it proves:</span> ${esc(s.proves)}</p>` : ''}
@@ -172,9 +197,10 @@ function closingSlide(spec) {
   <section class="page closing">
     <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
     <div class="body closing-body">
-      <h2>The stories, in full</h2>
+      <h2>Read any of them</h2>
+      <p class="where">Every link is in the post text, just above this deck.</p>
       <ol class="links">
-        ${spec.slides.map((s) => `<li><a href="${esc(s.url)}">${esc(shortUrl(s.url))}</a></li>`).join('')}
+        ${spec.slides.map((s) => `<li><a href="${esc(s.url)}">${esc(s.outlet || shortUrl(s.url))}</a></li>`).join('')}
       </ol>
       ${spec.quote && spec.quote.text
         ? `<p class="quote">“${esc(spec.quote.text)}”<span>${esc(spec.quote.by)}</span></p>` : ''}
@@ -274,6 +300,14 @@ function buildHtml(spec) {
      every page and steps the type down until it fits, because a sentence cut
      off by the yellow band is a bug a reader sees. */
   .body { flex: 1 1 auto; min-height: 0; padding: 54px 72px 34px; overflow: hidden; }
+  /* A page with no picture: the words get the whole slide. */
+  .body.big { display: flex; flex-direction: column; justify-content: center; padding: 64px 72px 54px; }
+  .body.big .summary { font-size: 76px; line-height: 1.1; }
+  .body.big .proves { font-size: 38px; margin-top: 52px; }
+  .lead-figure {
+    font-size: 120px; line-height: 1; font-weight: 700; color: ${NAVY};
+    margin: 0 0 40px; letter-spacing: -.02em;
+  }
   .summary { font-size: 58px; line-height: 1.16; font-weight: 600; margin: 0; letter-spacing: -.01em; }
   .proves { font-size: 33px; line-height: 1.34; margin: 40px 0 0; color: #3A4756; }
   .proves span { font-weight: 700; color: ${GREEN}; }
@@ -299,7 +333,14 @@ function buildHtml(spec) {
 
   .closing-body h2 { font-size: 54px; font-weight: 700; color: ${NAVY}; margin: 0 0 34px; }
   .links { margin: 0; padding-left: 46px; }
-  .links li { font-size: 27px; line-height: 1.7; word-break: break-all; }
+  /* Outlet names, not addresses. NOTHING ON A SLIDE IS TAPPABLE in the feed
+     (Stefan on his phone, 2026-09-27: "there is no way to click into the
+     story"), so a wall of raw URLs looks like a link and is not one, which
+     is worse than not showing it. The names say which five outlets, the
+     line above says where the real links are, and the anchors underneath
+     still work for anyone who downloads the file. */
+  .links li { font-size: 32px; line-height: 1.75; }
+  .where { font-size: 28px; color: ${GREEN}; font-style: italic; margin: 0 0 30px; }
   .links a { color: ${INK}; text-decoration: none; }
   .quote { font-size: 30px; font-style: italic; color: #3A4756; margin: 44px 0 0; line-height: 1.4; }
   .quote span { display: block; font-style: normal; font-weight: 600; margin-top: 12px; font-size: 25px; }

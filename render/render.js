@@ -100,7 +100,10 @@ async function main() {
         const body = pg.querySelector('.body');
         if (!body) return;
         const fits = () => body.scrollHeight <= body.clientHeight;
-        const sizes = [[58, 33], [52, 31], [47, 29], [43, 27], [39, 25], [35, 23]];
+        const big = body.classList.contains('big');
+        const sizes = big
+          ? [[76, 38], [68, 36], [60, 34], [54, 32], [48, 30], [42, 27]]
+          : [[58, 33], [52, 31], [47, 29], [43, 27], [39, 25], [35, 23]];
         const sum = body.querySelector('.summary');
         const pr = body.querySelector('.proves');
         for (const [a, b] of sizes) {
@@ -138,7 +141,9 @@ async function main() {
   } finally {
     await browser.close();
     // The intermediate HTML is a build artefact, not something to commit.
-    try { fs.unlinkSync(htmlPath); } catch (e) { /* nothing to clean up */ }
+    if (!process.env.KEEP_HTML) {
+      try { fs.unlinkSync(htmlPath); } catch (e) { /* nothing to clean up */ }
+    }
   }
 }
 
