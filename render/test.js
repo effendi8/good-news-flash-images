@@ -78,9 +78,17 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   // right edge (his screenshots, 2026-09-27), so the words stay out of both.
   check('NO PAGE NUMBER anywhere: LinkedIn prints "page 3 of 7" above the page',
     !/class="pg"/.test(html));
-  check('the story pages carry no footer, only the thin yellow line',
-    (html.match(/class="strip"/g) || []).length === spec.slides.length &&
-    (html.match(/class="foot"/g) || []).length === 2);
+  // The cover's and the closing page's yellow footer sat wholly inside the
+  // fade (audit 2026-09-27), so every page now carries the thin line and
+  // the two lines the footer used to hold moved up into the body.
+  check('NO PAGE carries a footer, only the thin yellow line; the two foot ' +
+    'lines live in the body, above the fade',
+    (html.match(/class="strip"/g) || []).length === spec.slides.length + 2 &&
+    !/class="foot"/.test(html) &&
+    /class="src">Verified sources/.test(html) && /class="src">Follow the Page/.test(html));
+  check('the closing page keeps the same right column as every other page: ' +
+    'its own padding-right override reached x=1008 under the buttons',
+    !/\.closing-body \{[^}]*padding-right/.test(html));
   check('the words keep out of the button column and the fade',
     /\.body \{[^}]*padding: 58px 136px 184px 72px/.test(html) &&
     /\.body\.big \{[^}]*padding: 64px 136px 184px 72px/.test(html));
@@ -146,7 +154,7 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   }));
   check('NO EM-DASH anywhere a reader can see it (rule R04), including the ' +
     'picture credits on the closing page',
-    /class="credits"/.test(withCredits) && withCredits.indexOf('\u2014') < 0);
+    /class="credits[ "]/.test(withCredits) && withCredits.indexOf('\u2014') < 0);
 }
 
 console.log('\nA SUBJECT FILED UNDER ANOTHER NAME STILL GETS ITS PICTURE');
@@ -276,6 +284,37 @@ console.log('\nTHE CHECK JUDGES THE SUBJECT, AND A LICENCE MUST FIT ON A SLIDE')
     }));
 }
 
+console.log('\nA CREDIT THAT IS OWED NEEDS A NAME');
+{
+  // Audit 2026-09-27: a CC BY-SA file whose author field is a note came
+  // through with its name dropped and shipped without the attribution the
+  // licence requires. Now such a file is refused and the next photo of the
+  // same entry is tried; a public-domain file with no name is still fine.
+  const askedO = [];
+  const answersO = [
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'African elephant', pageprops: { wikibase_item: 'Q185038' } } } } }],
+    [/wbgetentities/, { entities: { Q185038: { labels: { en: { value: 'African elephant' } }, descriptions: { en: { value: 'genus of mammals' } } } } }],
+    [/wbgetclaims/, { claims: { P18: [
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant.jpg' } } },
+      { rank: 'normal', mainsnak: { datavalue: { value: 'Elephant2.jpg' } } }] } }],
+    [/commons\.wikimedia\.org.*Elephant2/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e2.jpg', extmetadata: {
+      LicenseShortName: { value: 'CC BY-SA 4.0' }, AttributionRequired: { value: 'true' }, Artist: { value: 'Giles Laurent' } } }] } } } }],
+    [/commons\.wikimedia\.org/, { query: { pages: { '1': { imageinfo: [{ thumburl: 'https://x/e.jpg', extmetadata: {
+      LicenseShortName: { value: 'CC BY-SA 4.0' }, AttributionRequired: { value: 'true' },
+      Artist: { value: 'No machine-readable author provided. Someone assumed (based on copyright claims).' } } }] } } } }],
+  ];
+  const { subjectPicture } = require('./subject');
+  pending.push(Promise.all(pending.slice())
+    .then(() => { const rf = global.fetch; global.fetch = stubFetch(answersO, askedO);
+      return subjectPicture('An elephant calf was raised.', 'African elephant', () => {})
+        .finally(() => { global.fetch = rf; }); })
+    .then((p) => {
+      check('A CC BY-SA FILE WITH NO USABLE AUTHOR IS REFUSED, and the entry\'s next ' +
+        'photo, which names its author, is used',
+        p && p.imageUrl === 'https://x/e2.jpg' && p.creator === 'Giles Laurent', JSON.stringify(p));
+    }));
+}
+
 console.log('\nTHE CREDIT CARRIES A NAME OR NOTHING');
 {
   const { cleanCreator } = require('./subject');
@@ -327,6 +366,143 @@ console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
   check('every switch says in plain words what it is worth, so turning one on ' +
     'is an informed decision',
     [r.subjectPicture, r.librarysearch, r.editorCheck].every((x) => (x._why || '').length > 40));
+}
+
+console.log('\nNOTHING IN THE FADE OR UNDER THE BUTTONS, MEASURED IN A BROWSER');
+{
+  // Audit 2026-09-27 measured three defects on the deck as it shipped: the
+  // longest picture pages stepped to the floor and ran on into the fade
+  // (and off the page), the closing page reached x=1008 under the buttons
+  // and clipped its credits, and the cover was never measured at all. The
+  // same fitter and the same ruler render.js uses run here, on the
+  // worst-case spec, and every word has to land above y=1166 and left of
+  // x=944. A test on element boxes would not do: the ruler looks at words.
+  const os = require('os');
+  const { execFileSync } = require('child_process');
+  let fitter = null;
+  try { fitter = require('./fit'); } catch (e) { /* the old renderer had none */ }
+  check('THE RENDERER HAS ONE FITTER FOR EVERY PAGE, cover and closing page ' +
+    'included, and this test uses the same one', !!fitter);
+
+  const worst = JSON.parse(fs.readFileSync(path.join(__dirname, 'sample', 'worst.json'), 'utf8'));
+  const tiny = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==';
+  const owed = (i) => ({ kind: 'subject', dataUri: tiny, imageUrl: 'x', owedCredit: true,
+    creator: 'National Oceanic and Atmospheric Administration Fisheries ' + i,
+    licenceLabel: 'CC BY-SA 4.0', source: 'Wikimedia Commons' });
+  const withPics = (sp) => Object.assign({}, sp, {
+    slides: sp.slides.map((s, i) => Object.assign({}, s, { resolvedPicture: owed(i) })) });
+  const withoutPics = (sp) => Object.assign({}, sp, {
+    slides: sp.slides.map((s) => Object.assign({}, s, { resolvedPicture: null })) });
+
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'gnd-fit-'));
+  const fitted = async (browser, sp, name) => {
+    const file = path.join(tmp, name + '.html');
+    fs.writeFileSync(file, buildHtml(sp));
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1080, height: 1350 });
+    await page.goto('file://' + file, { waitUntil: 'networkidle0' });
+    await page.evaluateHandle('document.fonts.ready');
+    const report = fitter ? await fitter.fitInBrowser(page) : [];
+    const closingRight = await page.evaluate(() => {
+      const b = document.querySelector('.closing-body');
+      const pg = b && b.closest('.page');
+      return b ? Math.round(b.getBoundingClientRect().right - pg.getBoundingClientRect().left - parseFloat(getComputedStyle(b).paddingRight)) : null;
+    });
+    await page.close();
+    return { report, closingRight };
+  };
+  const clean = (r) => r.length && r.every((p) => !p.overflow);
+  const worstOf = (r, key) => r.length ? Math.max(...r.map((p) => p[key])) : 'not measured';
+
+  pending.push(Promise.all(pending.slice()).then(async () => {
+    const puppeteer = require('puppeteer');
+    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+    try {
+      // Defect 1: the picture pages with a 300-360 character summary and a
+      // 220-260 character proof line.
+      const wp = await fitted(browser, withPics(worst), 'worst-pics');
+      const stories = wp.report.filter((p) => p.kind === 'story');
+      check('WORST-CASE PICTURE PAGES: every word above the fade and left of the ' +
+        'buttons, the picture yielding before any word does',
+        stories.length === 5 && clean(stories),
+        'lowest word y=' + worstOf(stories, 'maxBottom') + ', rightmost x=' + worstOf(stories, 'maxRight'));
+      check('and not one word of a summary or proof line was cut to get there',
+        stories.length === 5 && stories.every((p) => !p.cut));
+
+      // Defect 2: five owed credits on the closing page.
+      const closing = wp.report.filter((p) => p.kind === 'closing');
+      check('CLOSING PAGE WITH FIVE OWED CREDITS: pointer, quote and credit list ' +
+        'all above the fade, none under the buttons',
+        clean(closing), closing.map((p) => (p.bad || []).slice(0, 2).join('; ')).join(' | '));
+      check('the closing page\'s words stop at x=944 like every other page\'s',
+        wp.closingRight !== null && wp.closingRight <= 944, 'content edge at x=' + wp.closingRight);
+
+      // A longer quote on top of five owed credits: the credit list drops to
+      // its short form (creator and licence, the source named once) rather
+      // than anything being clipped, and every creator is still named.
+      const longQuote = Object.assign({}, withPics(worst), { quote: {
+        text: 'researchers community vaccination measured between announced hospital ' +
+          'children percent recorded restoration programme researchers community ' +
+          'vaccination measured between announced hospital children percent recorded ' +
+          'restoration programme researchers.',
+        by: 'Eleanor Roosevelt Longname Testperson of the Longer Institute' } });
+      const lq = await fitted(browser, longQuote, 'long-quote');
+      const lqc = lq.report.find((p) => p.kind === 'closing') || {};
+      const lqHtml = buildHtml(longQuote);
+      check('WHEN THE FULL CREDIT LIST WOULD NOT FIT IT DROPS TO THE SHORT FORM, and ' +
+        'still fits, and every creator and licence is still on the page',
+        lqc.credits === 'short' && !lqc.overflow &&
+        /class="credits short" hidden>Pictures \(Wikimedia Commons\): National Oceanic[^<]*Fisheries 4 · CC BY-SA 4\.0</.test(lqHtml),
+        JSON.stringify({ credits: lqc.credits, overflow: lqc.overflow, y: lqc.maxBottom }));
+
+      // Defect 3: the cover, with the longest zoom-out line, and with the
+      // real one from the sample week.
+      const wn = await fitted(browser, withoutPics(worst), 'worst-nopic');
+      const sn = await fitted(browser, withoutPics(spec), 'sample-nopic');
+      const covers = wn.report.concat(sn.report).filter((p) => p.kind === 'cover');
+      check('THE COVER IS MEASURED AND FITS, with the 204-character zoom-out and ' +
+        'with the real one, foot line included',
+        covers.length === 2 && clean(covers),
+        covers.map((p) => 'y=' + p.maxBottom + ' ' + (p.bad || []).slice(0, 1)).join(' | '));
+      check('and the whole worst-case deck, pictures or not, has no word below ' +
+        'y=1166 or past x=944 on any of its pages',
+        clean(wp.report) && clean(wn.report) && clean(sn.report));
+
+      // The sentence cut: the very last resort before refusing, whole
+      // sentences from the end of the summary, the proof line untouched.
+      const sentence = 'Researchers measured the programme across forty hospitals and ' +
+        'recorded a steady fall in cases among children over the two years it ran.';
+      const longStory = Object.assign({}, worst.slides[0], { resolvedPicture: null,
+        summary: Array(9).fill(sentence).join(' '), numbers: [] });
+      const ls = await fitted(browser, Object.assign({}, worst, { slides: [longStory] }), 'long-story');
+      const lp = ls.report.find((p) => p.kind === 'story') || {};
+      check('A SUMMARY THAT CANNOT FIT AT THE FLOOR IS CUT AT A SENTENCE END, and only then',
+        lp.cut >= 1 && !lp.overflow && lp.summary && /\.$/.test(lp.summary) &&
+        longStory.summary.indexOf(lp.summary) === 0 &&
+        longStory.summary.charAt(lp.summary.length) === ' ',
+        JSON.stringify({ cut: lp.cut, ends: (lp.summary || '').slice(-40) }));
+    } finally {
+      await browser.close();
+    }
+
+    // The fail-safe, end to end: a page that cannot be made to fit means NO
+    // deck. The first renderer logged a warning and shipped the clipped
+    // pages; the Apps Script side then posted them. With no PDF the script
+    // falls back to the text recap, which is what it is designed to do.
+    const impossible = Object.assign({}, worst, { monday: '2099-01-04', slides: [Object.assign({},
+      worst.slides[0], { summary: 'x'.repeat(40).concat(' ').repeat(80).trim() + '.' })] });
+    const specFile = path.join(tmp, '2099-01-04.json');
+    fs.writeFileSync(specFile, JSON.stringify(impossible));
+    let code = 0, output = '';
+    try {
+      output = execFileSync(process.execPath, [path.join(__dirname, 'render.js'), specFile, '--no-pictures'],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 });
+    } catch (e) { code = e.status; output = String(e.stdout) + String(e.stderr); }
+    check('A DECK WITH A PAGE THAT CANNOT FIT IS REFUSED: non-zero exit and no PDF, ' +
+      'never a warning and a clipped page',
+      code !== 0 && !fs.existsSync(path.join(tmp, '2099-01-04.pdf')) && /no deck written/.test(output),
+      'exit ' + code + ': ' + output.split('\n').filter((l) => /overflow|WARNING|no deck/i.test(l)).join(' / '));
+  }));
 }
 
 Promise.all(pending).then(() => {
