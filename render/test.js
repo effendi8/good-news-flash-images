@@ -66,13 +66,24 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
     (html.match(/class="page/g) || []).length === spec.slides.length + 2,
     String((html.match(/class="page/g) || []).length));
 
-  check('EVERY story URL survives into the closing page, so a downloaded PDF ' +
-    'still carries them',
-    spec.slides.every((s) => html.indexOf(s.url) >= 0));
-  check('but the page SHOWS outlet names and says where the real links are, ' +
-    'because nothing on a slide is tappable in the feed',
-    /Every link is in the post text/.test(html) &&
-    spec.slides.every((s) => html.indexOf('>' + s.outlet + '<') >= 0));
+  // THE CLOSING PAGE SAYS WHERE THE STORIES ARE, and lists no outlets:
+  // "no one cares what the news channels are" (Stefan, 2026-09-27).
+  check('the closing page says, large, that the stories are linked in the post text',
+    /class="pointer">All five stories are linked in the post text above\./.test(html));
+  check('NO OUTLET NAME ON ANY PAGE, closing page and story footers included',
+    spec.slides.every((s) => html.indexOf('>' + s.outlet + '<') < 0),
+    JSON.stringify(spec.slides.map((s) => s.outlet)));
+
+  // LINKEDIN DARKENS THE BOTTOM OF EVERY PAGE and puts its buttons over the
+  // right edge (his screenshots, 2026-09-27), so the words stay out of both.
+  check('NO PAGE NUMBER anywhere: LinkedIn prints "page 3 of 7" above the page',
+    !/class="pg"/.test(html));
+  check('the story pages carry no footer, only the thin yellow line',
+    (html.match(/class="strip"/g) || []).length === spec.slides.length &&
+    (html.match(/class="foot"/g) || []).length === 2);
+  check('the words keep out of the button column and the fade',
+    /\.body \{[^}]*padding: 58px 136px 184px 72px/.test(html) &&
+    /\.body\.big \{[^}]*padding: 64px 136px 184px 72px/.test(html));
 
   check('the document title appears as a heading, because LinkedIn shows it ' +
     'over page one', html.indexOf(spec.title) >= 0);
