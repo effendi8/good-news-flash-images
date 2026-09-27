@@ -58,7 +58,14 @@ const esc = (s) => String(s == null ? '' : s)
  */
 function creditLine(pic) {
   if (!pic) return '';
-  const bits = ['Stock picture'];
+  // THE FIRST WORDS TELL THE READER WHAT THEY ARE LOOKING AT, and the two
+  // rungs of the picture ladder deserve different words. A library picture
+  // found by searching words is a stock picture, which is what Stefan chose
+  // to call it. A picture of the story's actual subject is not stock, but it
+  // is still not a photograph of the event, and on a page that promises
+  // checked facts that distinction is the one the reader needs. So it says
+  // so plainly. Wording flagged to Stefan 2026-09-27; his to change.
+  const bits = [pic.kind === 'subject' ? 'Not the event itself' : 'Stock picture'];
   if (pic.creator) bits.push(pic.creator);
   if (pic.licenceLabel) bits.push(pic.licenceLabel);
   if (pic.source) bits.push(pic.source);

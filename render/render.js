@@ -17,7 +17,7 @@
 const fs = require('fs');
 const path = require('path');
 const { buildHtml } = require('./deck');
-const { pictureFor } = require('./pictures');
+const { choosePicture } = require('./chooser');
 
 const log = (m) => console.log(m);
 
@@ -37,13 +37,12 @@ async function main() {
   log(`Rendering ${spec.monday}: ${spec.slides.length} stories, title "${spec.title}"`);
 
   for (const slide of spec.slides) {
-    const query = (slide.picture && slide.picture.query) || '';
-    if (noPictures || !query) { slide.resolvedPicture = null; continue; }
-    log(`Slide ${slide.n}: "${query}"`);
-    slide.resolvedPicture = await pictureFor(query, log);
+    if (noPictures) { slide.resolvedPicture = null; continue; }
+    log(`Slide ${slide.n}: ${String(slide.summary || '').slice(0, 64)}...`);
+    slide.resolvedPicture = await choosePicture(slide, log);
     if (!slide.resolvedPicture) {
-      log(`  -> no free picture, the slide uses the story's own numbers: ` +
-        `${JSON.stringify(slide.numbers || [])}`);
+      log(`  -> no picture of the subject, the slide uses the story's own ` +
+        `number: ${JSON.stringify((slide.numbers || [])[0] || null)}`);
     }
   }
 

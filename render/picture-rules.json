@@ -1,0 +1,30 @@
+{
+  "_comment": [
+    "The switches for how a slide gets its picture. Edit this file, commit, done.",
+    "The order below is the order they are tried, and the percentages are what",
+    "Wikimedia measured when they solved this same problem for unillustrated",
+    "Wikipedia articles (about 500 matches, six languages, expert reviewers):",
+    "https://www.mediawiki.org/wiki/Growth/Personalized_first_day/Structured_tasks/Add_an_image/Idea_validation"
+  ],
+
+  "subjectPicture": {
+    "enabled": true,
+    "_why": "The picture attached to the story's own subject. 85-95% right in Wikimedia's test, the best method anyone has published. A picture of the pygmy hog, not of a nature reserve somewhere else."
+  },
+
+  "librarysearch": {
+    "enabled": false,
+    "_why": "Searching a picture library by words from the story. 20-40% right in the same test, and it is what produced the Texas nature centre for an Oregon wetland. OFF by Stefan's decision of 2026-09-27: a picture that is only thematically right is rejected, and the number graphic takes its place."
+  },
+
+  "editorCheck": {
+    "enabled": false,
+    "_why": "Our own editor looks at the chosen picture and may reject it. OFF until Stefan switches it on. Turning it on needs BOTH this flag and an ANTHROPIC_API_KEY secret on the repository; with the flag on and no key the renderer says so in the log and carries on without the check, because a missing key must never cost a Monday.",
+    "model": "claude-haiku-4-5-20251001",
+    "maxSlides": 5
+  },
+
+  "numberGraphic": {
+    "_why": "Always last and never switched off. One figure the editor already published. Zero copyright surface, never the wrong picture, always available."
+  }
+}
