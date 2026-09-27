@@ -32,6 +32,7 @@
 
 const UA = 'GoodNewsDaily/1.0 (+https://www.linkedin.com/company/109379035)';
 const WIKIDATA = 'https://www.wikidata.org/w/api.php';
+const WIKIPEDIA = 'https://en.wikipedia.org/w/api.php';
 const COMMONS = 'https://commons.wikimedia.org/w/api.php';
 
 async function json(url) {
@@ -115,9 +116,43 @@ async function findEntities(phrase, log) {
   try {
     const d = await json(`${WIKIDATA}?action=wbsearchentities&search=${encodeURIComponent(phrase)}` +
       `&language=en&uselang=en&format=json&limit=3&origin=*`);
-    return d.search || [];
+    if (d.search && d.search.length) return d.search;
   } catch (e) {
     log(`    entity search failed for "${phrase}": ${e.message}`);
+  }
+  return byWikipediaTitle(phrase, log);
+}
+
+/**
+ * THE SAME SUBJECT UNDER ANOTHER NAME (2026-09-27, the first real deck).
+ *
+ * The editor named "Kok-Aral Dam". The database files it as "Dike Kokaral"
+ * and does not list the English name as an alias, so the search above came
+ * back empty and a subject with a perfectly good picture got none. Wikipedia
+ * keeps a redirect from every common name to the article, and the article
+ * says which database entry it is. So when the search finds nothing, ask
+ * Wikipedia which article the name leads to and take that entry.
+ *
+ * This is still the NAMED subject, looked up by another road; nothing is
+ * guessed. The setting rule below still applies to what comes back, which
+ * is why the label and description are fetched as well. Never throws.
+ */
+async function byWikipediaTitle(phrase, log) {
+  try {
+    const w = await json(`${WIKIPEDIA}?action=query&titles=${encodeURIComponent(phrase)}` +
+      `&redirects=1&prop=pageprops&ppprop=wikibase_item&format=json&origin=*`);
+    const page = Object.values((w.query && w.query.pages) || {})[0] || {};
+    const qid = page.pageprops && page.pageprops.wikibase_item;
+    if (!qid) return [];
+    const e = await json(`${WIKIDATA}?action=wbgetentities&ids=${qid}` +
+      `&props=labels|descriptions&languages=en&format=json&origin=*`);
+    const ent = (e.entities && e.entities[qid]) || {};
+    const label = (ent.labels && ent.labels.en && ent.labels.en.value) || page.title || phrase;
+    const description = (ent.descriptions && ent.descriptions.en && ent.descriptions.en.value) || '';
+    log(`    "${phrase}" is filed under another name: "${label}" (${qid}), via Wikipedia`);
+    return [{ id: qid, label, description, match: { text: phrase } }];
+  } catch (err) {
+    log(`    Wikipedia lookup failed for "${phrase}": ${err.message}`);
     return [];
   }
 }

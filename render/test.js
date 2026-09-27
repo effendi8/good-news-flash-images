@@ -15,6 +15,9 @@ const path = require('path');
 const { buildHtml, creditLine } = require('./deck');
 
 let pass = 0, fail = 0;
+// Checks that wait on a promise register here; the result is printed once
+// all of them have answered, so none can land after the verdict.
+const pending = [];
 const check = (name, cond, detail) => {
   if (cond) { pass++; console.log('  ok   ' + name); }
   else { fail++; console.log('  FAIL ' + name + (detail ? '\n         -> ' + detail : '')); }
@@ -47,13 +50,11 @@ console.log('THE CREDIT SAYS WHAT STEFAN DECIDED ON 2026-09-27');
   // perfume for a child in Cologne. Every one passed a "the story names
   // this" check, because the story did name it.
   const { subjectPicture } = require('./subject');
-  subjectPicture('A six-year-old in Cologne spotted a stolen car.', '', () => {})
+  pending.push(subjectPicture('A six-year-old in Cologne spotted a stolen car.', '', () => {})
     .then((p) => {
       check('NO NAMED SUBJECT, NO PICTURE: guessing it is what produced perfume ' +
         'for a story about Cologne', p === null, JSON.stringify(p));
-      console.log('\nRESULT: ' + pass + ' passed, ' + fail + ' failed');
-      process.exit(fail ? 1 : 0);
-    });
+    }));
 }
 
 console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
@@ -115,7 +116,15 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   // The zoom-out opens the text recap because LinkedIn previews the first
   // sentence. A carousel has no first sentence, so the cover is where the
   // same eye lands (Stefan, 2026-09-27).
-  check('THE ZOOM-OUT IS ON THE COVER', html.indexOf(spec.zoomOut) >= 0);
+  check('THE ZOOM-OUT IS ON THE COVER',
+    html.indexOf(spec.zoomOut.replace(/^Zoom out:\s*/i, '')) >= 0);
+  const fancy = buildHtml(Object.assign({}, spec, {
+    zoomOut: '\u{1D419}\u{1D428}\u{1D428}\u{1D426} \u{1D428}\u{1D42E}\u{1D42D}: TB treatment saved lives.'
+  }));
+  check('LINKEDIN\'S BOLD LETTERS BECOME ORDINARY ONES on the slide, set bold ' +
+    'by the slide itself, so the cover never mixes two typefaces',
+    /<strong>Zoom out:<\/strong> TB treatment saved lives\./.test(fancy) &&
+    !/[\u{1D400}-\u{1D7FF}]/u.test(fancy));
   const noZoom = buildHtml(Object.assign({}, spec, { zoomOut: '' }));
   check('and nothing verified means no line at all, never a filled slot',
     !/class="zoom"/.test(noZoom));
@@ -127,6 +136,35 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
   check('NO EM-DASH anywhere a reader can see it (rule R04), including the ' +
     'picture credits on the closing page',
     /class="credits"/.test(withCredits) && withCredits.indexOf('—') < 0);
+}
+
+console.log('\nA SUBJECT FILED UNDER ANOTHER NAME STILL GETS ITS PICTURE');
+{
+  // Offline: every request is answered from this table, so the test says
+  // what the code asks for and cannot pass on a lucky network day.
+  const answers = [
+    [/wbsearchentities/, { search: [] }],
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'Dike Kokaral', pageprops: { wikibase_item: 'Q1166032' } } } } }],
+    [/wbgetentities/, { entities: { Q1166032: { labels: { en: { value: 'Dike Kokaral' } }, descriptions: { en: { value: 'dam in Kazakhstan' } } } } }],
+    [/wbgetclaims/, { claims: { P18: [{ rank: 'normal', mainsnak: { datavalue: { value: 'Dike Kokaral.jpg' } } }] } }],
+  ];
+  const asked = [];
+  const realFetch = global.fetch;
+  global.fetch = async (url) => {
+    asked.push(url);
+    const hit = answers.find(([re]) => re.test(url));
+    return { ok: !!hit, status: hit ? 200 : 404, json: async () => (hit ? hit[1] : {}) };
+  };
+  const { subjectPicture } = require('./subject');
+  pending.push(subjectPicture('Kazakhstan\'s Kok-Aral Dam raised the sea.', 'Kok-Aral Dam', () => {})
+    .catch(() => null)
+    .then(() => {
+      global.fetch = realFetch;
+      check('"Kok-Aral Dam" finds nothing in the database search, so Wikipedia ' +
+        'is asked which entry the name leads to, and THAT entry\'s picture is looked up',
+        asked.some((u) => /en\.wikipedia\.org/.test(u)) &&
+        asked.some((u) => /wbgetclaims.*Q1166032/.test(u)));
+    }));
 }
 
 console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
@@ -142,3 +180,7 @@ console.log('\nTHE SWITCHES ARE READABLE AND SAY WHAT THEY COST');
     [r.subjectPicture, r.librarysearch, r.editorCheck].every((x) => (x._why || '').length > 40));
 }
 
+Promise.all(pending).then(() => {
+  console.log('\nRESULT: ' + pass + ' passed, ' + fail + ' failed');
+  process.exit(fail ? 1 : 0);
+});
