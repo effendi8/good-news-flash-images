@@ -113,8 +113,13 @@ function storySlide(s, i, total) {
   // all say anyway. The picture now runs to the top edge and the words get
   // the rest. Only page one keeps a clear zone, because only page one is
   // overlaid by LinkedIn's own title.
+  // data-figure: if the words do not fit even with the picture at its
+  // smallest, fit.js drops the picture and the page becomes the typographic
+  // one above, lead figure included. The figure has to be on the page for
+  // that, and this is the only place that knows it.
+  const lead = (s.numbers || [])[0];
   return `
-  <section class="page">
+  <section class="page"${lead ? ` data-figure="${esc(lead)}"` : ''}>
     <div class="photo tall" style="background-image:url('${pic.dataUri}')">
       ${credit ? `<div class="whisper">${esc(credit)}</div>` : ''}
     </div>
@@ -201,10 +206,9 @@ function coverSlide(spec) {
       <h1>${esc(spec.title)}</h1>
       <p class="sub">The ${spec.slides.length} stories readers chose, ${esc(humanWeek(spec.monday))}</p>
       ${zoom ? `<p class="zoom">${zoomHtml(zoom)}</p>` : ''}
+      <p class="src">Verified sources · published daily</p>
     </div>
-    <div class="foot">
-      <span class="src">Verified sources · published daily</span>
-    </div>
+    <div class="strip"></div>
   </section>`;
 }
 
@@ -220,11 +224,24 @@ function coverSlide(spec) {
  * the stories are, and the quote gets heavier letters.
  */
 function closingSlide(spec) {
-  const credits = spec.slides
+  const pics = spec.slides
     .map((s) => s.resolvedPicture)
-    .filter((p) => p && (p.creator || p.source))
-    .map((p) => [p.creator, p.licenceLabel, p.source].filter(Boolean).join(' · '));
+    .filter((p) => p && (p.creator || p.source));
+  const credits = pics.map((p) => [p.creator, p.licenceLabel, p.source].filter(Boolean).join(' · '));
   const unique = credits.filter((c, i) => credits.indexOf(c) === i);
+  // THE SHORT FORM, for a week that owes more credits than the page holds:
+  // creator and licence per picture, the source named once. fit.js swaps it
+  // in only when the full list would run into the fade, and never drops a
+  // creator or a licence, because those are what the licence asks for.
+  const bySource = {};
+  pics.forEach((p) => {
+    const src = p.source || 'other sources';
+    const item = [p.creator, p.licenceLabel].filter(Boolean).join(' · ');
+    bySource[src] = bySource[src] || [];
+    if (item && bySource[src].indexOf(item) < 0) bySource[src].push(item);
+  });
+  const short = Object.keys(bySource)
+    .map((src) => `Pictures (${src}): ${bySource[src].join('; ')}`).join('. ');
   return `
   <section class="page closing">
     <div class="clear"><span class="kicker">Good News <em>Daily</em></span></div>
@@ -232,11 +249,11 @@ function closingSlide(spec) {
       <p class="pointer">All ${spec.slides.length === 5 ? 'five' : spec.slides.length} stories are linked in the post text above.</p>
       ${spec.quote && spec.quote.text
         ? `<p class="quote">“${esc(spec.quote.text)}”<span>${esc(spec.quote.by)}</span></p>` : ''}
-      ${unique.length ? `<p class="credits">Pictures: ${esc(unique.join('; '))}</p>` : ''}
+      ${unique.length ? `<p class="credits full">Pictures: ${esc(unique.join('; '))}</p>` : ''}
+      ${unique.length ? `<p class="credits short" hidden>${esc(short)}</p>` : ''}
+      <p class="src">Follow the Page for one good story a day</p>
     </div>
-    <div class="foot">
-      <span class="src">Follow the Page for one good story a day</span>
-    </div>
+    <div class="strip"></div>
   </section>`;
 }
 
@@ -348,15 +365,28 @@ function buildHtml(spec) {
   .proves { font-size: 42px; line-height: 1.3; margin: 42px 0 0; color: #2B3746; }
   .proves span { font-weight: 700; color: ${GREEN}; }
 
-  .foot {
-    flex: 0 0 104px; background: ${YELLOW}; color: #1A1508;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 72px; font-size: 30px; font-weight: 600;
-  }
+  /* The line the yellow footer used to carry. The footer sat wholly inside
+     LinkedIn's fade (a 104px band in the bottom 184px), so its words were
+     the darkest thing on the page. The words now sit above the fade as the
+     last line of the body, and the band is the same thin strip the story
+     pages have. */
+  .src { font-size: 30px; font-weight: 600; color: ${NAVY}; margin: 48px 0 0; }
 
-  .cover-body { flex: 1 1 auto; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 0 84px; text-align: center; }
-  .sun { width: 118px; height: 118px; border-radius: 50%; background: ${YELLOW};
+  /* Same right column and bottom margin as a story page: the cover's words
+     were never measured and the zoom-out line ran into the fade. min-height
+     and overflow let fit.js see when it does. */
+  /* "safe center": a plain center pushes overflow out of the TOP, where
+     the sun disappears under the navy band and no ruler sees it. Safe
+     centring overflows downward instead, which the stepping catches. */
+  .cover-body { flex: 1 1 auto; min-height: 0; overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: safe center;
+    padding: 0 136px 184px 136px; text-align: center; }
+  .cover .src { margin-top: 56px; }
+  /* flex-shrink 0: an empty flex item shrinks before it overflows, so a
+     cover with too many words showed a squashed sun and no overflow for
+     the ruler to catch. Now the words overflow and the type steps down. */
+  .sun { flex: 0 0 118px; width: 118px; height: 118px; border-radius: 50%; background: ${YELLOW};
     box-shadow: 0 0 0 12px rgba(255,193,7,.28); margin-bottom: 64px; }
   .cover h1 { font-size: 92px; line-height: 1.08; font-weight: 700; color: ${NAVY};
     margin: 0; letter-spacing: -.02em; }
@@ -370,7 +400,6 @@ function buildHtml(spec) {
      anything taller sits under LinkedIn's fade and turns olive. */
   .strip { flex: 0 0 16px; background: ${YELLOW}; }
 
-  .closing-body { padding-right: 72px; }
   .pointer { font-size: 76px; line-height: 1.12; font-weight: 700; color: ${NAVY}; margin: 0; }
   .quote { font-size: 54px; font-style: italic; font-weight: 600; color: ${INK}; margin: 80px 0 0; line-height: 1.28; }
   .quote span { display: block; font-style: normal; font-weight: 700; margin-top: 22px; font-size: 42px; }

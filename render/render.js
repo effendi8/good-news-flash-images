@@ -18,6 +18,7 @@ const fs = require('fs');
 const path = require('path');
 const { buildHtml } = require('./deck');
 const { choosePicture } = require('./chooser');
+const { fitInBrowser, describe } = require('./fit');
 
 const log = (m) => console.log(m);
 
@@ -88,39 +89,24 @@ async function main() {
     // renders in the fallback face and the rest do not.
     await page.evaluateHandle('document.fonts.ready');
 
-    // ---- Nothing may be cut off by the yellow band ----------------------
+    // ---- Nothing may sit in LinkedIn's fade or under its buttons ---------
     // The first render clipped "by one person deciding to do it." behind the
     // foot. Editors write to meaning, not to a character count, so the
-    // layout has to yield rather than the sentence. Each page's text is
-    // stepped down until it fits, and a page that still does not fit at the
-    // floor is reported rather than shipped quietly.
-    const tight = await page.evaluate(() => {
-      const out = [];
-      document.querySelectorAll('.page').forEach((pg, i) => {
-        const body = pg.querySelector('.body');
-        if (!body) return;
-        const fits = () => body.scrollHeight <= body.clientHeight;
-        const big = body.classList.contains('big');
-        // THE FLOOR IS 34px, which is about 12px on a phone. Below that
-        // Stefan could not read it (2026-09-27), so the type stops
-        // shrinking there and the warning below fires instead.
-        const sizes = big
-          ? [[80, 46], [72, 44], [64, 42], [56, 38], [48, 36], [42, 34]]
-          : [[62, 42], [56, 40], [50, 38], [46, 36], [42, 35], [38, 34]];
-        const sum = body.querySelector('.summary');
-        const pr = body.querySelector('.proves');
-        for (const [a, b] of sizes) {
-          if (sum) sum.style.fontSize = a + 'px';
-          if (pr) pr.style.fontSize = b + 'px';
-          if (fits()) return;
-        }
-        if (!fits()) out.push(i + 1);
-      });
-      return out;
-    });
-    if (tight.length) {
-      log(`  WARNING: page(s) ${tight.join(', ')} still overflow at the smallest ` +
-        `type. The deck is still written; look at those pages.`);
+    // layout has to yield rather than the sentence. fit.js steps every page
+    // (cover and closing page included, which the first version never
+    // measured) and then measures every word. A page that still overflows
+    // after every step is a render FAILURE: no PDF is written, the workflow
+    // commits nothing, and the Monday recap goes out as the text post it
+    // always was. That fail-safe is designed; a clipped deck on the Page is
+    // not.
+    const report = await fitInBrowser(page);
+    for (const rep of report) log('  ' + describe(rep));
+    const cut = report.filter((r) => r.cut);
+    for (const r of cut) log(`  page ${r.page} summary now reads: ${r.summary}`);
+    const over = report.filter((r) => r.overflow);
+    if (over.length) {
+      throw new Error(`page(s) ${over.map((r) => r.page).join(', ')} still carry words in ` +
+        `the fade or the button column after every step; no deck written`);
     }
 
     const pdfPath = path.join(outDir, `${spec.monday}.pdf`);
