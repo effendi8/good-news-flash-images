@@ -154,6 +154,30 @@ function numberBlock(s) {
   </div>`;
 }
 
+/**
+ * LINKEDIN'S BOLD IS NOT A FONT (2026-09-27, the first real deck).
+ *
+ * The text recap writes "Zoom out" in Unicode's mathematical bold letters,
+ * because a LinkedIn post has no other way to be bold. The slide font has no
+ * such letters, so the browser borrowed them from a serif font and the cover
+ * carried two typefaces in one line. Here they go back to ordinary letters,
+ * and the slide does its own bold, properly.
+ */
+function plainLetters(text) {
+  return Array.from(text).map((ch) => {
+    const c = ch.codePointAt(0);
+    if (c >= 0x1D400 && c <= 0x1D419) return String.fromCharCode(65 + c - 0x1D400);
+    if (c >= 0x1D41A && c <= 0x1D433) return String.fromCharCode(97 + c - 0x1D41A);
+    if (c >= 0x1D7CE && c <= 0x1D7D7) return String.fromCharCode(48 + c - 0x1D7CE);
+    return ch;
+  }).join('');
+}
+
+function zoomHtml(zoom) {
+  const m = zoom.match(/^(Zoom out:)\s*/i);
+  return m ? `<strong>${esc(m[1])}</strong> ${esc(zoom.slice(m[0].length))}` : esc(zoom);
+}
+
 function coverSlide(spec) {
   // THE ZOOM-OUT GOES ON THE COVER (Stefan, 2026-09-27). It is one sourced
   // "then versus now" fact, and in the text recap it is deliberately the
@@ -168,7 +192,7 @@ function coverSlide(spec) {
   // Empty is a real answer, not a gap to fill: the trend library refuses to
   // offer anything it cannot still verify, and the recap ships without the
   // line rather than with a stale number. The cover does the same.
-  const zoom = String(spec.zoomOut || '').trim();
+  const zoom = plainLetters(String(spec.zoomOut || '')).trim();
   return `
   <section class="page cover">
     <div class="clear"></div>
@@ -176,7 +200,7 @@ function coverSlide(spec) {
       <div class="sun"></div>
       <h1>${esc(spec.title)}</h1>
       <p class="sub">The ${spec.slides.length} stories readers chose, ${esc(humanWeek(spec.monday))}</p>
-      ${zoom ? `<p class="zoom">${esc(zoom)}</p>` : ''}
+      ${zoom ? `<p class="zoom">${zoomHtml(zoom)}</p>` : ''}
     </div>
     <div class="foot">
       <span class="src">Verified sources · published daily</span>
