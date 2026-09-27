@@ -65,9 +65,13 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
     (html.match(/class="page/g) || []).length === spec.slides.length + 2,
     String((html.match(/class="page/g) || []).length));
 
-  check('EVERY story URL survives into the closing page: the caption is the ' +
-    'only click path a document post has',
+  check('EVERY story URL survives into the closing page, so a downloaded PDF ' +
+    'still carries them',
     spec.slides.every((s) => html.indexOf(s.url) >= 0));
+  check('but the page SHOWS outlet names and says where the real links are, ' +
+    'because nothing on a slide is tappable in the feed',
+    /Every link is in the post text/.test(html) &&
+    spec.slides.every((s) => html.indexOf('>' + s.outlet + '<') >= 0));
 
   check('the document title appears as a heading, because LinkedIn shows it ' +
     'over page one', html.indexOf(spec.title) >= 0);
@@ -83,8 +87,15 @@ console.log('\nTHE DECK CANNOT INVENT, CLIP OR LOSE ANYTHING');
     'numbers is a claim the editor did not make',
     !/class="fig small"/.test(html));
 
-  check('a slide with neither picture nor numbers still renders a page',
-    html.indexOf('class="mark"') >= 0);
+  // The ghosted wordmark is gone: a page with nothing to show now gives its
+  // space to the sentence instead of filling six tenths of a phone screen
+  // with navy (Stefan, 2026-09-27).
+  check('A SLIDE WITH NO PICTURE BECOMES A TYPOGRAPHIC PAGE, not an empty one',
+    (html.match(/class="page text-only"/g) || []).length === spec.slides.length &&
+    html.indexOf('class="mark"') < 0 && /class="body big"/.test(html),
+    String((html.match(/class="page text-only"/g) || []).length));
+  check('and a story with no figure at all still renders its page',
+    html.indexOf(spec.slides[4].summary) >= 0);
 
   check('the top fifth of every page is the clear zone LinkedIn overlays',
     (html.match(/class="clear"/g) || []).length === spec.slides.length + 2);

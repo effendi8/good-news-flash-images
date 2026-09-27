@@ -118,4 +118,4 @@ async function pictureFor(query, log) {
   return null;
 }
 
-module.exports = { pictureFor };
+module.exports = { pictureFor, inline };
