@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "monday": "2026-10-05",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: In 1990, 71 of every 100 people had electricity at home. In 2023 it was 92. (World Bank)",
+  "quote": {
+    "text": "Progress is impossible without change, and those who cannot change their minds cannot change anything.",
+    "by": "George Bernard Shaw"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "progress_data",
+      "summary": "The global greater one-horned rhino population has reached 4,075, with Kaziranga National Park in Assam now sheltering more than 2,600 of them after rhino killings there fell 86% since 2016.",
+      "headline": "Greater one-horned rhino population reaches 4,075",
+      "proves": "Coordinated anti-poaching investment, drones and forest camps included, can bring a once-declining megafauna population back to record highs.",
+      "outlet": "sentinelassam.com",
+      "url": "https://www.sentinelassam.com/north-east-india-news/assam-news/assams-kaziranga-leads-rhino-revival-as-global-greater-one-horned-population-rises-to-4075?utm_source=substack&utm_medium=email",
+      "numbers": [
+        "4,075",
+        "2,600",
+        "86%"
+      ],
+      "picture": {
+        "subject": "Greater one-horned rhinoceros",
+        "query": "The global greater one-horned rhino population has reached"
+      }
+    },
+    {
+      "n": 2,
+      "category": "community",
+      "summary": "After tens of thousands protested her eviction, 87-year-old Maricarmen Abascal will return to her Madrid apartment under a new lease at roughly 500 euros a month.",
+      "headline": "87-year-old returns to Madrid apartment after protests",
+      "proves": "A sustained public protest in Madrid can reverse a completed eviction and restore a tenant's home on comparable terms.",
+      "outlet": "20 Minuten",
+      "url": "https://www.20min.ch/story/madrid-maricarmen-happy-end-seniorin-darf-in-wohnung-zurueck-nach-zwangsraeumung-103640873",
+      "numbers": [
+        "87",
+        "500"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "After tens of thousands protested her eviction"
+      }
+    },
+    {
+      "n": 3,
+      "category": "progress_data",
+      "summary": "Brazil's unemployment rate fell to 5.3% for the quarter ending in August, the lowest for that period since records began in 2012, with 103.5 million people employed.",
+      "headline": "Brazil unemployment falls to 5.3% in August quarter",
+      "proves": "Brazil's 774,000 new jobs in three months shows a large economy can add formal employment at a record pace.",
+      "outlet": "Agência Brasil",
+      "url": "https://agenciabrasil.ebc.com.br/en/economia/noticia/2026-09/unemployment-falls-53-lowest-quarter-ending-august",
+      "numbers": [
+        "5.3%",
+        "103.5 million",
+        "774,000"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Brazil's unemployment rate fell to 5"
+      }
+    },
+    {
+      "n": 4,
+      "category": "health",
+      "summary": "A SpaceX Dragon capsule carrying four astronauts docked with the ISS in 7 hours 55 minutes, the fastest crewed arrival in the station's history.",
+      "headline": "Dragon capsule docks with ISS in record 7 hours 55 minutes",
+      "proves": "A crew and capsule combination demonstrates astronauts can now reach the ISS in under eight hours instead of the usual day or more.",
+      "outlet": "Süddeutsche Zeitung",
+      "url": "https://www.sueddeutsche.de/wissen/iss-spacex-astronauten-li.3557324",
+      "numbers": [
+        "55"
+      ],
+      "picture": {
+        "subject": "SpaceX Dragon",
+        "query": "A SpaceX Dragon capsule carrying four astronauts docked"
+      }
+    },
+    {
+      "n": 5,
+      "category": "community",
+      "summary": "Several bystanders in Wohlen, Switzerland pulled all four young occupants from a burning Fiat Punto after it crashed into a tree, some of the rescuers suffering burns themselves.",
+      "headline": "Bystanders rescue four from burning car in Switzerland",
+      "proves": "Ordinary bystanders without equipment or training can save four lives from a burning car before emergency crews arrive.",
+      "outlet": "20 Minuten",
+      "url": "https://www.20min.ch/story/rettung-in-wohlen-ag-ersthelfer-bergen-vier-junge-menschen-aus-brennendem-auto-103642243",
+      "numbers": [],
+      "picture": {
+        "subject": "",
+        "query": "Several bystanders in Wohlen"
+      }
+    }
+  ],
+  "builtAt": "2026-10-04T17:30:18.390Z"
+}
