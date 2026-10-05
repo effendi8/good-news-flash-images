@@ -42,14 +42,10 @@ jobs:
           if [ -n "${{ github.event.inputs.spec }}" ]; then
             spec="${{ github.event.inputs.spec }}"
           else
-            # Every spec with no rendered deck beside it, newest last. A spec
-            # whose PDF already exists is finished, and re-rendering it would
-            # replace a deck that may already be scheduled in Buffer.
-            spec=""
-            for f in $(ls carousel/*.json 2>/dev/null | sort); do
-              base="${f%.json}"
-              if [ ! -f "$base.pdf" ]; then spec="$f"; fi
-            done
+            # The newest spec still waiting for its deck: no PDF yet, or a
+            # newer ask (askedAt) than the one its receipt answers. A spec
+            # whose receipt matches is finished (render/pick.js says why).
+            spec="$(node render/pick.js)"
           fi
           if [ -z "$spec" ] || [ ! -f "$spec" ]; then
             # Not a failure. A push that touches this repository without
@@ -88,11 +84,23 @@ jobs:
           git config user.name  "carousel-renderer"
           git config user.email "noreply@github.com"
           git add "carousel/$base.pdf" "carousel/$base.png"
+          # Identical bytes (a re-render of an unchanged week) commit nothing,
+          # but the receipt below is still written: without it the script
+          # would wait for an answer that never comes and lose the carousel.
           if git diff --cached --quiet; then
-            echo "Nothing changed."
-            exit 0
+            echo "Deck unchanged; the receipt points at the commit that holds it."
+          else
+            git commit -m "Rendered carousel for $base"
           fi
-          git commit -m "Rendered carousel for $base"
+          # The receipt names the ask this deck answers and the commit that
+          # holds it. The script waits for a receipt matching ITS ask and
+          # points Buffer at that commit, so a later render never swaps the
+          # file under a scheduled post (audit 2026-09-27, finding A).
+          node render/pick.js receipt "${{ steps.pick.outputs.spec }}" "$(git rev-parse HEAD)"
+          git add "carousel/$base.receipt.txt"
+          if ! git diff --cached --quiet; then
+            git commit -m "Receipt for the $base deck"
+          fi
           # The Apps Script side is polling the raw address of the PDF, so a
           # push that fails must fail the job loudly rather than leave it
           # waiting until its 21:00 deadline.

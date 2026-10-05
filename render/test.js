@@ -505,6 +505,42 @@ console.log('\nNOTHING IN THE FADE OR UNDER THE BUTTONS, MEASURED IN A BROWSER')
   }));
 }
 
+console.log('\nA PREVIEW DECK CAN NEVER BECOME THE LIVE ONE (audit 2026-09-27, finding A)');
+{
+  const os = require('os');
+  const { pick, writeReceipt, receiptPath } = require('./pick');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gnd-pick-'));
+  const put = (f, body) => fs.writeFileSync(path.join(dir, f), typeof body === 'string' ? body : JSON.stringify(body));
+  const SHA = 'a'.repeat(40);
+
+  put('2026-09-28.json', { monday: '2026-09-28', slides: [] });
+  put('2026-09-28.pdf', 'old');
+  check('an old week without askedAt and with its PDF is finished, never rendered again',
+    pick(dir) === '', pick(dir));
+
+  put('2026-10-12.json', { monday: '2026-10-12', askedAt: '2026-10-11T13:00:00Z', slides: [] });
+  check('a new spec with no PDF is picked', /2026-10-12\.json$/.test(pick(dir)), pick(dir));
+
+  put('2026-10-12.pdf', 'preview deck');
+  writeReceipt(path.join(dir, '2026-10-12.json'), SHA);
+  check('rendered and receipted: finished', pick(dir) === '', pick(dir));
+  const r = JSON.parse(fs.readFileSync(receiptPath(path.join(dir, '2026-10-12.json')), 'utf8'));
+  check('the receipt names the ask it answers and the commit holding the deck',
+    r.askedAt === '2026-10-11T13:00:00Z' && r.sha === SHA && r.monday === '2026-10-12', JSON.stringify(r));
+
+  // 19:30: the live tick writes its own spec over the preview.
+  put('2026-10-12.json', { monday: '2026-10-12', askedAt: '2026-10-11T17:30:00Z', slides: [] });
+  check('THE LIVE SPEC IS RENDERED EVEN THOUGH A PREVIEW PDF ALREADY EXISTS',
+    /2026-10-12\.json$/.test(pick(dir)), pick(dir));
+
+  let threw = false;
+  try { writeReceipt(path.join(dir, '2026-10-12.json'), 'main'); } catch (e) { threw = true; }
+  check('a receipt refuses anything that is not a full commit id (a branch name would move)', threw);
+
+  check('the receipt is not .json, so the workflow never mistakes it for a spec',
+    /\.receipt\.txt$/.test(receiptPath('carousel/2026-10-12.json')));
+}
+
 Promise.all(pending).then(() => {
   console.log('\nRESULT: ' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
