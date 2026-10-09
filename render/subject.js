@@ -239,6 +239,43 @@ async function entityImages(qid, log) {
 }
 
 /**
+ * THE YOUNG ANIMAL, NOT THE ADULT (Stefan's yes of 2026-10-05, the calf
+ * story of 2026-09-28 that carried a tusked adult elephant).
+ *
+ * The entry's own picture shows the typical adult by design (Wikipedia's
+ * lead image, Wikidata's P18). When the story is about a calf, a cub or a
+ * chick, Commons can be asked for photos TAGGED as showing this exact entry
+ * ("depicts", P180) that also mention the young one. It is the same subject,
+ * so this is not the fall-through the 108-story test condemned; it is a
+ * better photo of the thing the editor named. Only nouns for a young animal
+ * count: "young" or "baby" alone would match "young people" stories.
+ * Files whose title names the young one come first. Never throws.
+ */
+const YOUNG = ['calf', 'calves', 'cub', 'cubs', 'chick', 'chicks', 'pup', 'pups', 'foal',
+  'hatchling', 'hatchlings', 'joey', 'fawn', 'kitten', 'kittens', 'duckling', 'ducklings',
+  'piglet', 'piglets', 'lamb', 'juvenile'];
+
+function youngWord(text) {
+  const words = String(text || '').toLowerCase().match(/[a-z]+/g) || [];
+  return YOUNG.find((w) => words.includes(w)) || '';
+}
+
+async function depictsYoung(qid, word, log) {
+  try {
+    const d = await json(`${COMMONS}?action=query&list=search` +
+      `&srsearch=${encodeURIComponent(`haswbstatement:P180=${qid} ${word}`)}` +
+      `&srnamespace=6&srlimit=5&format=json&origin=*`);
+    const titles = ((d.query && d.query.search) || []).map((r) => String(r.title || '').replace(/^File:/, ''));
+    const stem = word.replace(/(es|s)$/, '');
+    return titles.filter((t) => t.toLowerCase().includes(stem))
+      .concat(titles.filter((t) => !t.toLowerCase().includes(stem)));
+  } catch (e) {
+    log(`    young-animal search failed for ${qid}: ${e.message}`);
+    return [];
+  }
+}
+
+/**
  * Everything the credit needs, straight from the file's own record: the
  * licence, whether attribution is a condition, who made it, and a copy
  * already scaled to slide width so nothing large is ever downloaded.
@@ -310,9 +347,9 @@ function cleanCreator(raw) {
 /**
  * The story's subject picture, or null.
  *
- * `text` is everything the editor wrote about the story. It is no longer
- * read here (the subject is named, and matched exactly); the argument stays
- * so the callers do not change.
+ * `text` is everything the editor wrote about the story. The subject is
+ * named and matched exactly; the text is read for one thing only, whether
+ * the story is about a young animal (see depictsYoung).
  */
 async function subjectPicture(text, named, log) {
   const say = log || (() => {});
@@ -346,7 +383,15 @@ async function subjectPicture(text, named, log) {
     if (isSettingEntity(hit)) {
       say(`    "${hit.label}" is where the story happened, not what it is about (${hit.description})`);
     } else {
-      for (const file of (await entityImages(hit.id, say)).slice(0, 3)) {
+      const young = youngWord(text);
+      const files = [];
+      if (young) {
+        const y = (await depictsYoung(hit.id, young, say)).slice(0, 3);
+        if (y.length) say(`    the story is about a ${young}: ${y.length} photo(s) of "${hit.label}" with a ${young} tried first`);
+        files.push(...y);
+      }
+      files.push(...(await entityImages(hit.id, say)).slice(0, 3));
+      for (const file of files) {
         try {
           const pic = await commonsFile(file, say);
           pic.subject = hit.label;
@@ -364,4 +409,4 @@ async function subjectPicture(text, named, log) {
   return null;
 }
 
-module.exports = { subjectPicture, candidatePhrases, cleanCreator };
+module.exports = { subjectPicture, candidatePhrases, cleanCreator, youngWord };
