@@ -249,6 +249,42 @@ console.log('\nONE CANDIDATE, EXACT, NEVER THE NEXT SEARCH RESULT (108-story tes
     .finally(() => { global.fetch = realFetch; }));
 }
 
+console.log('\nA CALF STORY GETS A CALF, OF THE SAME ANIMAL (Stefan, 2026-10-05)');
+{
+  const { subjectPicture, youngWord } = require('./subject');
+  const realFetch = global.fetch;
+  check('"orphaned elephant calf" is read as a calf story', youngWord('Keeper cares for an orphaned elephant calf.') === 'calf');
+  check('"young people" and "baby boom" are NOT young-animal stories',
+    youngWord('Young people and the baby boom generation') === '');
+  const base = [
+    [/en\.wikipedia\.org.*redirects=1/, { query: { pages: { '1': { title: 'African bush elephant', pageprops: { wikibase_item: 'Q36557' } } } } }],
+    [/wbgetentities/, { entities: { Q36557: { labels: { en: { value: 'African bush elephant' } }, descriptions: { en: { value: 'species of elephant' } } } } }],
+    [/list=search/, { query: { search: [{ title: 'File:Kruger 0137.jpg' }, { title: 'File:Elephant calf, North West.jpg' }] } }],
+    [/wbgetclaims/, { claims: { P18: [{ rank: 'normal', mainsnak: { datavalue: { value: 'Adult bull.jpg' } } }] } }],
+    [/prop=imageinfo/, { query: { pages: { '1': { imageinfo: [{ url: 'u', thumburl: 't', descriptionurl: 'd',
+      extmetadata: { LicenseShortName: { value: 'Public domain' }, AttributionRequired: { value: 'false' }, Artist: { value: 'NPS' } } }] } } } }],
+  ];
+  const askedA = [], askedB = [];
+  pending.push(Promise.all(pending.slice())
+    .then(() => { global.fetch = stubFetch(base, askedA); })
+    .then(() => subjectPicture('A keeper spent five months caring for an orphaned elephant calf.', 'African bush elephant', () => {}))
+    .then((p) => {
+      const search = askedA.find((u) => /list=search/.test(u)) || '';
+      const firstFile = (askedA.find((u) => /prop=imageinfo/.test(u)) || '');
+      check('a calf story asks Commons for photos TAGGED as this same entry that show a calf',
+        /haswbstatement%3AP180%3DQ36557%20calf/.test(search), search);
+      check('and the photo whose title names the calf is tried first, before the adult on the entry',
+        !!p && /Elephant%20calf/.test(firstFile), firstFile);
+    })
+    .then(() => { global.fetch = stubFetch(base, askedB); })
+    .then(() => subjectPicture('Rhino numbers reached 4,075.', 'African bush elephant', () => {}))
+    .then(() => {
+      check('a story with no young animal asks nothing extra: the entry\'s own picture as before',
+        !askedB.some((u) => /list=search/.test(u)), JSON.stringify(askedB));
+    })
+    .finally(() => { global.fetch = realFetch; }));
+}
+
 console.log('\nTHE CHECK JUDGES THE SUBJECT, AND A LICENCE MUST FIT ON A SLIDE');
 {
   // Reads the question the check sends, without calling any model.
