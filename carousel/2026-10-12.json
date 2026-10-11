@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "monday": "2026-10-12",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: In 1977, just 16 countries had abolished the death penalty. Today 113 have abolished it for all crimes. (Amnesty International)",
+  "quote": {
+    "text": "It's the little things citizens do. That's what will make the difference.",
+    "by": "Wangari Maathai"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "community",
+      "summary": "Retired teacher Jim Crouch has grown and given away 10,000 oak seedlings across Southern California, opening a sixth nursery to help replant fire-scarred Altadena.",
+      "headline": "Retired teacher Jim Crouch has grown and given away 10,000 oak seedlings across Southern…",
+      "proves": "The new La Canada High School nursery will supply oak seedlings directly to Altadena residents rebuilding after the Eaton fire.",
+      "outlet": "latimes.com",
+      "url": "https://www.latimes.com/environment/story/2026-09-19/one-man-has-planted-10000-native-oak-trees-across-southern-california",
+      "numbers": [
+        "10,000"
+      ],
+      "picture": {
+        "subject": "Oak",
+        "query": "Retired teacher Jim Crouch has grown and given"
+      }
+    },
+    {
+      "n": 2,
+      "category": "climate_energy",
+      "summary": "Solar, wind and battery storage added 89 gigawatts of US capacity over the past 18 months, with utility solar up 33 percent and coal capacity down 2.4 percent.",
+      "headline": "Solar wind and battery storage add 89 gigawatts of US capacity",
+      "proves": "Renewable capacity can keep expanding at scale even against active federal policy working against it.",
+      "outlet": "commondreams.org",
+      "url": "https://www.commondreams.org/news/trump-can-t-kill-renewables",
+      "numbers": [
+        "89",
+        "18",
+        "33 percent"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Solar"
+      }
+    },
+    {
+      "n": 3,
+      "category": "community",
+      "summary": "Ahmed and Rifat Ali's home, condemned after they lost £72,000 to an unsafe extension, was rebuilt by more than 150 tradespeople and volunteers on BBC's DIY SOS, with cameras, visual fire and doorbell alerts and color changing lights built in for their deaf family.",
+      "headline": "Ahmed and Rifat Ali's home",
+      "proves": "",
+      "outlet": "bbc.co.uk",
+      "url": "https://www.bbc.co.uk/news/articles/cm369pglxd98o",
+      "numbers": [
+        "£72,000",
+        "150"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Ahmed and Rifat Ali's home"
+      }
+    },
+    {
+      "n": 4,
+      "category": "community",
+      "summary": "Alastair Cass stepped outside after Arsenal lost 3-0 and heard a woman's cries from a valley near his Devon home, finding Sallie trapped chest-deep in mud for four hours and getting her help.",
+      "headline": "Man hears cries and rescues woman trapped in mud near Devon home",
+      "proves": "One person noticing a faint sound and refusing to ignore it can locate someone no search team yet knew to look for.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/fan-storms-out-as-team-loses-and-finds-woman-stuck-in-mud/",
+      "numbers": [],
+      "picture": {
+        "subject": "",
+        "query": "Alastair Cass stepped outside after Arsenal lost 3-0"
+      }
+    },
+    {
+      "n": 5,
+      "category": "community",
+      "summary": "Three community members and four Champaign, Illinois police officers were honored for pulling a 90-year-old woman from her flooding car in a retention pond, and she attended the ceremony to thank them.",
+      "headline": "Three community members and four Champaign",
+      "proves": "Neighbors and officers acting together within minutes can pull a flood victim from a submerged car before it is too late.",
+      "outlet": "champaignil.gov",
+      "url": "https://champaignil.gov/2026/10/01/champaign-police-celebrate-community-lifesavers/",
+      "numbers": [
+        "90"
+      ],
+      "picture": {
+        "subject": "",
+        "query": "Three community members and four Champaign"
+      }
+    }
+  ],
+  "builtAt": "2026-10-11T17:28:27.313Z",
+  "askedAt": "2026-10-11T17:28:25.395Z"
+}
