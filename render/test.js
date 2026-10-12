@@ -624,6 +624,7 @@ console.log('\nTHE SHELF: SYMBOL PICTURES STEFAN APPROVED, AND NOTHING ELSE (202
   rec('2026-08-17', 'nine-weeks-ago');
   rec('2026-10-19', 'this-monday-preview');
   fs.writeFileSync(path.join(dir, '2026-09-28.pictures.txt'), 'not json');
+  rec('2026-10-13', 'tuesday-preview');
   const used = recentlyUsed('2026-10-19', dir);
   check('the rotation reads the records of the last eight weeks',
     used.has('two-weeks-ago'), [...used].join(','));
@@ -631,6 +632,8 @@ console.log('\nTHE SHELF: SYMBOL PICTURES STEFAN APPROVED, AND NOTHING ELSE (202
   check('THIS Monday\'s own record (an earlier render) does not block its own pictures',
     !used.has('this-monday-preview'));
   check('an unreadable record is skipped, never fatal', used.size === 1, [...used].join(','));
+  check('A PREVIEW DATED ON A WEEKDAY USES NOTHING UP: only Monday decks reach readers',
+    !used.has('tuesday-preview'));
 
   check('the shipped shelf file reads, and every entry carries a concept from its own list',
     (() => { const sh = loadShelf(); return Array.isArray(sh.concepts) && sh.concepts.length > 0 &&
