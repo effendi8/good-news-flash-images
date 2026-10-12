@@ -1,0 +1,16 @@
+{
+  "_comment": [
+    "THE PICTURE SHELF (render/shelf.js). Symbol pictures for stories no photograph can show.",
+    "Every entry is a Wikimedia Commons file. 'approved' is Stefan's tick and nothing else may set it.",
+    "'checkedOn' is the day a person last opened the file page and confirmed licence, author and content; older than a year = not used.",
+    "'concepts' is the closed list. The script's weekly naming call (Carousel.gs) must use exactly these words; a word not on this list is no picture.",
+    "Rules for a picture to be on the shelf at all: public domain, CC0, CC BY or CC BY-SA; no recognisable face; no brand or logo; it shows the concept plainly."
+  ],
+  "concepts": [
+    "home", "rescue", "volunteers", "donation", "food", "school", "hospital",
+    "vaccine", "laboratory", "blood_donation", "vet_care", "trees", "solar_power",
+    "wind_power", "clean_water", "ocean", "recycling", "elderly_care", "reading",
+    "public_transport", "jobs"
+  ],
+  "entries": []
+}

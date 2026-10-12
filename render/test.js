@@ -577,6 +577,104 @@ console.log('\nA PREVIEW DECK CAN NEVER BECOME THE LIVE ONE (audit 2026-09-27, f
     /\.receipt\.txt$/.test(receiptPath('carousel/2026-10-12.json')));
 }
 
+console.log('\nTHE SHELF: SYMBOL PICTURES STEFAN APPROVED, AND NOTHING ELSE (2026-10-12)');
+{
+  const os = require('os');
+  const { eligible, recentlyUsed, shelfPicture, loadShelf } = require('./shelf');
+  const sym = creditLine({ kind: 'shelf', creator: 'A. Person', licenceLabel: 'CC BY 4.0', source: 'Wikimedia Commons' });
+  check('A SHELF PICTURE SAYS "Symbol picture" FIRST, so no reader takes it for the scene',
+    sym.indexOf('Symbol picture') === 0, sym);
+
+  const shelf = {
+    concepts: ['home', 'rescue'],
+    entries: [
+      { id: 'home-1', concept: 'home', file: 'A.jpg', approved: true, checkedOn: '2026-10-12' },
+      { id: 'home-2', concept: 'home', file: 'B.jpg', approved: false, checkedOn: '2026-10-12' },
+      { id: 'home-3', concept: 'home', file: 'C.jpg', approved: true, checkedOn: '2025-09-01' },
+      { id: 'home-4', concept: 'home', file: 'D.jpg', approved: true, checkedOn: '2026-10-01' },
+      { id: 'rescue-1', concept: 'rescue', file: 'E.jpg', approved: true, checkedOn: '2026-10-12' }
+    ]
+  };
+  const none = new Set();
+  const ids = (a) => a.map((e) => e.id).join(',');
+  check('ONLY APPROVED PICTURES: an entry without Stefan\'s tick is never used',
+    !ids(eligible(shelf, 'home', '2026-10-19', none, none)).includes('home-2'));
+  check('A CHECK OLDER THAN A YEAR IS NO CHECK: the stale entry is refused',
+    !ids(eligible(shelf, 'home', '2026-10-19', none, none)).includes('home-3'));
+  check('the two good ones remain, in the order they were approved',
+    ids(eligible(shelf, 'home', '2026-10-19', none, none)) === 'home-1,home-4',
+    ids(eligible(shelf, 'home', '2026-10-19', none, none)));
+  check('A WORD NOT ON THE CLOSED LIST IS NO PICTURE, even if an entry carries it',
+    eligible({ concepts: ['home'], entries: [{ id: 'x', concept: 'party', file: 'X.jpg', approved: true, checkedOn: '2026-10-12' }] },
+      'party', '2026-10-19', none, none).length === 0);
+  check('no concept, no picture', eligible(shelf, '', '2026-10-19', none, none).length === 0);
+  check('the concept word is read case-blind and trimmed',
+    ids(eligible(shelf, ' Rescue ', '2026-10-19', none, none)) === 'rescue-1');
+  check('USED IN THE LAST EIGHT WEEKS: skipped',
+    ids(eligible(shelf, 'home', '2026-10-19', new Set(['home-1']), none)) === 'home-4');
+  check('NEVER TWICE IN ONE DECK',
+    ids(eligible(shelf, 'home', '2026-10-19', none, new Set(['home-4']))) === 'home-1');
+  check('all used up: nothing, so the slide shows its number',
+    eligible(shelf, 'home', '2026-10-19', new Set(['home-1', 'home-4']), none).length === 0);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shelf-'));
+  const rec = (monday, id) => fs.writeFileSync(path.join(dir, monday + '.pictures.txt'),
+    JSON.stringify({ monday, slides: [{ n: 1, kind: 'shelf', shelfId: id }, { n: 2, kind: 'number' }] }));
+  rec('2026-10-05', 'two-weeks-ago');
+  rec('2026-08-17', 'nine-weeks-ago');
+  rec('2026-10-19', 'this-monday-preview');
+  fs.writeFileSync(path.join(dir, '2026-09-28.pictures.txt'), 'not json');
+  const used = recentlyUsed('2026-10-19', dir);
+  check('the rotation reads the records of the last eight weeks',
+    used.has('two-weeks-ago'), [...used].join(','));
+  check('a record older than eight weeks rotates nothing', !used.has('nine-weeks-ago'));
+  check('THIS Monday\'s own record (an earlier render) does not block its own pictures',
+    !used.has('this-monday-preview'));
+  check('an unreadable record is skipped, never fatal', used.size === 1, [...used].join(','));
+
+  check('the shipped shelf file reads, and every entry carries a concept from its own list',
+    (() => { const sh = loadShelf(); return Array.isArray(sh.concepts) && sh.concepts.length > 0 &&
+      sh.entries.every((e) => sh.concepts.includes(e.concept) && e.id && e.file); })());
+  check('every shipped entry id is unique',
+    (() => { const sh = loadShelf(); const i = sh.entries.map((e) => e.id); return new Set(i).size === i.length; })());
+
+  // A file whose licence changed since Stefan approved it is refused, and the
+  // next approved picture is used: the licence is re-read on every use.
+  const slide = { picture: { concept: 'home' } };
+  const fakeCommons = async (file) => {
+    if (file === 'A.jpg') throw new Error('licence is not usable commercially: CC BY-NC');
+    return { imageUrl: 'https://x/' + file, creator: 'Someone', licenceLabel: 'CC0', owedCredit: false, source: 'Wikimedia Commons' };
+  };
+  pending.push(shelfPicture(slide, '2026-10-19', new Set(), fakeCommons, () => {}, { shelf, usedRecently: none })
+    .then((p) => {
+      check('A SHELF FILE WHOSE LICENCE NO LONGER PASSES IS REFUSED, and the next approved one is used',
+        p && p.shelfId === 'home-4' && p.kind === 'shelf', JSON.stringify(p));
+    }));
+  pending.push(shelfPicture({ picture: { concept: 'home' } }, '2026-10-19', new Set(), async () => { throw new Error('gone'); },
+    () => {}, { shelf, usedRecently: none })
+    .then((p) => check('every shelf file failing its check: no picture, never a throw', p === null)));
+
+  const rules = JSON.parse(fs.readFileSync(path.join(__dirname, 'picture-rules.json'), 'utf8'));
+  check('the shelf rung is ON and the library search is still OFF',
+    rules.shelf && rules.shelf.enabled === true && rules.librarysearch.enabled === false);
+}
+
+console.log('\nA BIG FILE IS NOT A WRONG FILE (2026-10-12, the oak)');
+{
+  const { inline, MAX_DOWNLOAD_BYTES } = require('./pictures');
+  const realFetch = global.fetch;
+  const bytes = (n, type) => async () => ({ ok: true, status: 200,
+    headers: { get: () => type || 'image/png' }, arrayBuffer: async () => new ArrayBuffer(n) });
+  pending.push(Promise.all(pending.slice())
+    .then(() => { global.fetch = bytes(4594136); return inline('https://x/oak.png'); })
+    .then((uri) => check('THE 4.6 MB OAK PNG IS DOWNLOADED: render.js shrinks it to a slide-size JPEG anyway',
+      /^data:image\/png;base64,/.test(uri)), (e) => check('THE 4.6 MB OAK PNG IS DOWNLOADED', false, e.message))
+    .then(() => { global.fetch = bytes(MAX_DOWNLOAD_BYTES + 1); return inline('https://x/huge.tif'); })
+    .then(() => check('a runaway file above the ceiling is still refused', false),
+      (e) => check('a runaway file above the ceiling is still refused', /too large/.test(e.message), e.message))
+    .then(() => { global.fetch = realFetch; }));
+}
+
 Promise.all(pending).then(() => {
   console.log('\nRESULT: ' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);

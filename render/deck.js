@@ -71,7 +71,11 @@ function creditLine(pic) {
   // is still not a photograph of the event, and on a page that promises
   // checked facts that distinction is the one the reader needs. So it says
   // so plainly. Wording flagged to Stefan 2026-09-27; his to change.
-  const bits = [pic.kind === 'subject' ? 'Not the event itself' : 'Stock picture'];
+  // A SHELF PICTURE SAYS IT IS A SYMBOL (Stefan, 2026-10-05: the shelf
+  // "with pictures labelled as symbol pictures").
+  const label = pic.kind === 'subject' ? 'Not the event itself'
+    : pic.kind === 'shelf' ? 'Symbol picture' : 'Stock picture';
+  const bits = [label];
   if (pic.creator) bits.push(pic.creator);
   if (pic.licenceLabel) bits.push(pic.licenceLabel);
   if (pic.source) bits.push(pic.source);

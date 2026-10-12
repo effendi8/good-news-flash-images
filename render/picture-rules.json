@@ -12,6 +12,11 @@
     "_why": "The picture attached to the story's own subject. 85-95% right in Wikimedia's test, the best method anyone has published. A picture of the pygmy hog, not of a nature reserve somewhere else."
   },
 
+  "shelf": {
+    "enabled": true,
+    "_why": "A symbol picture for a story no photograph can show (people, events). Only pictures Stefan approved one by one in render/shelf.json, checked within a year, not used in the last eight weeks, labelled 'Symbol picture' on the page. Decided 2026-10-05, built 2026-10-12. With no approved picture for the story's concept the slide shows its number, exactly as before."
+  },
+
   "librarysearch": {
     "enabled": false,
     "_why": "Searching a picture library by words from the story. 20-40% right in the same test, and it is what produced the Texas nature centre for an Oregon wetland. OFF by Stefan's decision of 2026-09-27: a picture that is only thematically right is rejected, and the number graphic takes its place."
