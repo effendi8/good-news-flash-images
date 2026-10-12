@@ -58,6 +58,11 @@ function recentlyUsed(monday, dir) {
   for (const name of names) {
     const m = name.match(/^(\d{4}-\d{2}-\d{2})\.pictures\.txt$/);
     if (!m || m[1] >= monday) continue;
+    // ONLY A MONDAY DECK USES A PICTURE UP (2026-10-12). A preview is
+    // written for "tomorrow", so on any day but Sunday it carries a
+    // weekday date, and counting it would lock the shelf's pictures for
+    // eight weeks without a reader ever seeing them.
+    if (new Date(m[1] + 'T12:00:00Z').getUTCDay() !== 1) continue;
     if (daysBetween(m[1], monday) > ROTATION_DAYS) continue;
     try {
       const rec = JSON.parse(fs.readFileSync(path.join(dir || RECORD_DIR, name), 'utf8'));
