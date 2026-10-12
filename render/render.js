@@ -37,10 +37,11 @@ async function main() {
   if (!spec.title) throw new Error('the spec carries no title, and Buffer refuses a document post without one');
   log(`Rendering ${spec.monday}: ${spec.slides.length} stories, title "${spec.title}"`);
 
+  const pictureCtx = { monday: spec.monday, usedThisDeck: new Set() };
   for (const slide of spec.slides) {
     if (noPictures) { slide.resolvedPicture = null; continue; }
     log(`Slide ${slide.n}: ${String(slide.summary || '').slice(0, 64)}...`);
-    slide.resolvedPicture = await choosePicture(slide, log);
+    slide.resolvedPicture = await choosePicture(slide, log, pictureCtx);
     if (!slide.resolvedPicture) {
       log(`  -> no picture of the subject, the slide uses the story's own ` +
         `number: ${JSON.stringify((slide.numbers || [])[0] || null)}`);
@@ -48,6 +49,19 @@ async function main() {
   }
 
   const outDir = path.dirname(specPath);
+
+  // THE PICTURE RECORD (2026-10-12): which kind of picture each slide got,
+  // and which shelf picture. The shelf reads the last eight weeks of these
+  // to rotate, and a reader of the repo can see at a glance why a slide
+  // had no picture. .txt, never .json: the workflow fires on carousel/*.json.
+  fs.writeFileSync(path.join(outDir, `${spec.monday}.pictures.txt`), JSON.stringify({
+    monday: spec.monday,
+    slides: spec.slides.map((s) => {
+      const p = s.resolvedPicture;
+      return p ? { n: s.n, kind: p.kind, shelfId: p.shelfId || null, landing: p.landing || '' }
+        : { n: s.n, kind: 'number' };
+    })
+  }, null, 2) + '\n');
   const puppeteer = require('puppeteer');
   const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
   try {

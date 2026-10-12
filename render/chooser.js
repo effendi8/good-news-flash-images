@@ -5,8 +5,10 @@
  * figures, see subject.js):
  *
  *   1. the story's own subject          85-95%   on by default
- *   2. a library search by words        20-40%   OFF by default
- *   3. one figure the editor published   n/a     always, never switched off
+ *   2. a symbol picture from the shelf   n/a     on; only pictures Stefan
+ *                                                approved (shelf.js)
+ *   3. a library search by words        20-40%   OFF by default
+ *   4. one figure the editor published   n/a     always, never switched off
  *
  * Rung 2 is off because Stefan decided on 2026-09-27 that a picture which is
  * only thematically right should be rejected rather than shown: on a Page
@@ -19,6 +21,8 @@ const path = require('path');
 const { subjectPicture } = require('./subject');
 const { pictureFor: libraryPicture, inline } = require('./pictures');
 const { editorApproves } = require('./editor-check');
+const { commonsFile } = require('./subject');
+const { shelfPicture } = require('./shelf');
 
 function rules() {
   return JSON.parse(fs.readFileSync(path.join(__dirname, 'picture-rules.json'), 'utf8'));
@@ -37,9 +41,10 @@ function storyText(slide) {
  * slide with a number, and a Sunday that cannot reach the internet must
  * still produce a deck.
  */
-async function choosePicture(slide, log) {
+async function choosePicture(slide, log, ctx) {
   const say = log || (() => {});
   const r = rules();
+  const c = ctx || {};
 
   if (r.subjectPicture && r.subjectPicture.enabled) {
     let pic = null;
@@ -49,6 +54,20 @@ async function choosePicture(slide, log) {
     if (pic) {
       pic.kind = 'subject';
       if (await passesEditor(pic, slide, r, say) && await fetchBytes(pic, say)) return pic;
+    }
+  }
+
+  // THE SHELF (2026-10-12). Pictures Stefan approved by eye, so the picture
+  // check is not asked: his look is the better check. Needs the Monday, to
+  // rotate, and the deck's own list, so no picture appears twice in it.
+  if (r.shelf && r.shelf.enabled && c.monday) {
+    let pic = null;
+    try { pic = await shelfPicture(slide, c.monday, c.usedThisDeck || new Set(), commonsFile, say,
+      { shelf: c.shelf, usedRecently: c.usedRecently }); }
+    catch (e) { say(`    shelf threw (${e.message})`); }
+    if (pic && await fetchBytes(pic, say)) {
+      if (c.usedThisDeck) c.usedThisDeck.add(pic.shelfId);
+      return pic;
     }
   }
 

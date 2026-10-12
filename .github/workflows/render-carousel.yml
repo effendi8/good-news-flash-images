@@ -83,7 +83,9 @@ jobs:
           base="$(basename "${{ steps.pick.outputs.spec }}" .json)"
           git config user.name  "carousel-renderer"
           git config user.email "noreply@github.com"
-          git add "carousel/$base.pdf" "carousel/$base.png"
+          # The picture record goes with the deck: the shelf reads the last
+          # eight weeks of records to rotate its pictures (render/shelf.js).
+          git add "carousel/$base.pdf" "carousel/$base.png" "carousel/$base.pictures.txt"
           # Identical bytes (a re-render of an unchanged week) commit nothing,
           # but the receipt below is still written: without it the script
           # would wait for an answer that never comes and lose the carousel.

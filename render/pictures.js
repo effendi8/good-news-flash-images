@@ -26,6 +26,7 @@
 
 const OPENVERSE = 'https://api.openverse.org/v1/images/';
 const UA = 'GoodNewsDaily/1.0 (+https://www.linkedin.com/company/109379035)';
+const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024;
 
 // Licences that owe no attribution, best first.
 const FREE = 'cc0,pdm';
@@ -61,9 +62,14 @@ async function inline(url) {
   const type = res.headers.get('content-type') || 'image/jpeg';
   if (!/^image\//.test(type)) throw new Error(`picture is ${type}, not an image`);
   const buf = Buffer.from(await res.arrayBuffer());
-  // A slide picture over ~4 MB makes a PDF Buffer may refuse and a reader
-  // will not wait for. Anything that large is the wrong file anyway.
-  if (buf.length > 4 * 1024 * 1024) throw new Error(`picture is ${buf.length} bytes, too large`);
+  // A RUNAWAY GUARD, NOT A QUALITY RULE (2026-10-12). This was 4 MB, set
+  // when the bytes went into the PDF as downloaded. They no longer do:
+  // render.js re-encodes every picture to a 1080-wide JPEG before the deck
+  // is built, so the PDF never sees this size. The 4 MB line then cost the
+  // 2026-10-12 deck its only picture: a correct, licensed, approved oak
+  // photo whose 1280-wide copy is a 4.6 MB PNG. What stays is a ceiling
+  // against a file that is not a slide picture at all.
+  if (buf.length > MAX_DOWNLOAD_BYTES) throw new Error(`picture is ${buf.length} bytes, too large`);
   return `data:${type};base64,${buf.toString('base64')}`;
 }
 
@@ -118,4 +124,4 @@ async function pictureFor(query, log) {
   return null;
 }
 
-module.exports = { pictureFor, inline };
+module.exports = { pictureFor, inline, MAX_DOWNLOAD_BYTES };
