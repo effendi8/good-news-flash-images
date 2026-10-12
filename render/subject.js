@@ -409,4 +409,4 @@ async function subjectPicture(text, named, log) {
   return null;
 }
 
-module.exports = { subjectPicture, candidatePhrases, cleanCreator, youngWord };
+module.exports = { subjectPicture, commonsFile, candidatePhrases, cleanCreator, youngWord };
