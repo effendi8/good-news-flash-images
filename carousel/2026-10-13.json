@@ -12,7 +12,7 @@
       "n": 1,
       "category": "community",
       "summary": "Retired teacher Jim Crouch has grown and given away 10,000 oak seedlings across Southern California, opening a sixth nursery to help replant fire-scarred Altadena.",
-      "headline": "Retired teacher grows and gives away 10,000 oak seedlings",
+      "headline": "Retired teacher Jim Crouch has grown and given away 10,000 oak seedlings across Southern…",
       "proves": "The new La Canada High School nursery will supply oak seedlings directly to Altadena residents rebuilding after the Eaton fire.",
       "outlet": "latimes.com",
       "url": "https://www.latimes.com/environment/story/2026-09-19/one-man-has-planted-10000-native-oak-trees-across-southern-california",
@@ -29,7 +29,7 @@
       "n": 2,
       "category": "community",
       "summary": "Ahmed and Rifat Ali's home, condemned after they lost £72,000 to an unsafe extension, was rebuilt by more than 150 tradespeople and volunteers on BBC's DIY SOS, with cameras, visual fire and doorbell alerts and color changing lights built in for their deaf family.",
-      "headline": "150 volunteers rebuilt condemned home on BBC DIY SOS",
+      "headline": "Home rebuilt for deaf family on BBC DIY SOS",
       "proves": "",
       "outlet": "bbc.co.uk",
       "url": "https://www.bbc.co.uk/news/articles/cm369pglxd98o",
@@ -47,7 +47,7 @@
       "n": 3,
       "category": "health",
       "summary": "Stanford scientists reversed cartilage loss and blocked arthritis in mice by inhibiting a single aging-related protein, and human knee cartilage samples began growing new tissue in response.",
-      "headline": "Stanford scientists reversed cartilage loss in mice",
+      "headline": "Stanford scientists reverse cartilage loss in mice",
       "proves": "Human cartilage taken during knee replacement surgery responded to the same treatment by producing new, functional cartilage.",
       "outlet": "sciencedaily.com",
       "url": "https://www.sciencedaily.com/releases/2026/10/261005011249.htm",
@@ -62,7 +62,7 @@
       "n": 4,
       "category": "health",
       "summary": "All 32 patients in the NEOPRISM-CRC trial stayed free of bowel cancer recurrence for 33 months after a nine week course of pembrolizumab before surgery, far beating the 25% relapse rate expected with standard chemotherapy.",
-      "headline": "All 32 bowel cancer patients stayed recurrence free for 33 months",
+      "headline": "Pembrolizumab keeps bowel cancer in remission for 33 months",
       "proves": "Blood tests tracking tumor DNA could let doctors identify which patients can safely skip extra chemotherapy after surgery.",
       "outlet": "ScienceDaily",
       "url": "https://www.sciencedaily.com/releases/2026/10/261007042115.htm",
@@ -81,7 +81,7 @@
       "n": 5,
       "category": "community",
       "summary": "Ukraine has expanded free hot school lunches to every grade 1 to 11 student, now feeding roughly 3 million children daily, with kitchens in frontline Sumy region cooking through air raid sirens and blackouts.",
-      "headline": "Ukraine expands free hot lunches to 3 million schoolchildren",
+      "headline": "Ukraine expands free hot lunches to 3 million students",
       "proves": "A diesel generator at Romny School No. 7 shows how a single kitchen can keep cooking through Russian strikes on the power grid.",
       "outlet": "united24media.com",
       "url": "https://united24media.com/life-in-ukraine/ukraine-feeds-3-million-schoolchildren-for-free-despite-russian-attacks-and-blackouts-23327",
@@ -96,6 +96,6 @@
       }
     }
   ],
-  "builtAt": "2026-10-12T21:15:08.645Z",
-  "askedAt": "2026-10-12T21:15:08.645Z"
+  "builtAt": "2026-10-12T21:22:41.148Z",
+  "askedAt": "2026-10-12T21:22:41.149Z"
 }
