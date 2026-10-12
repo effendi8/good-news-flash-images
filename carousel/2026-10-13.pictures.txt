@@ -1,0 +1,33 @@
+{
+  "monday": "2026-10-13",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "subject",
+      "shelfId": null,
+      "landing": "https://commons.wikimedia.org/wiki/File:FriedenseicheVon1815_AltTucheband_Juli2017.png"
+    },
+    {
+      "n": 2,
+      "kind": "shelf",
+      "shelfId": "home-2",
+      "landing": "https://commons.wikimedia.org/wiki/File:Einfamilienhaus_in_Pasing,_M%C3%BCnchen.jpg"
+    },
+    {
+      "n": 3,
+      "kind": "number"
+    },
+    {
+      "n": 4,
+      "kind": "shelf",
+      "shelfId": "vaccine-2",
+      "landing": "https://commons.wikimedia.org/wiki/File:Covid-10_Vaccine_and_Syringe_(50622013413).jpg"
+    },
+    {
+      "n": 5,
+      "kind": "shelf",
+      "shelfId": "food-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Vegetable_market_in_Heraklion.jpg"
+    }
+  ]
+}
