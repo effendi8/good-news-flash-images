@@ -444,8 +444,13 @@ console.log('\nNOTHING IN THE FADE OR UNDER THE BUTTONS, MEASURED IN A BROWSER')
       const pg = b && b.closest('.page');
       return b ? Math.round(b.getBoundingClientRect().right - pg.getBoundingClientRect().left - parseFloat(getComputedStyle(b).paddingRight)) : null;
     });
+    // What every picture credit ended up as after fitting, and whether it
+    // fits the picture's edge (audit 2026-10-13, finding 4).
+    const whispers = await page.evaluate(() => Array.from(document.querySelectorAll('.whisper')).map((w) => ({
+      text: w.textContent, forms: JSON.parse(w.dataset.credits || '[]'),
+      fits: w.scrollHeight <= w.clientHeight + 1 })));
     await page.close();
-    return { report, closingRight };
+    return { report, closingRight, whispers };
   };
   const clean = (r) => r.length && r.every((p) => !p.overflow);
   const worstOf = (r, key) => r.length ? Math.max(...r.map((p) => p[key])) : 'not measured';
@@ -464,6 +469,22 @@ console.log('\nNOTHING IN THE FADE OR UNDER THE BUTTONS, MEASURED IN A BROWSER')
         'lowest word y=' + worstOf(stories, 'maxBottom') + ', rightmost x=' + worstOf(stories, 'maxRight'));
       check('and not one word of a summary or proof line was cut to get there',
         stories.length === 5 && stories.every((p) => !p.cut));
+
+      // AUDIT 2026-10-13, FINDING 4: the rotated credit was clipped at about
+      // 90 characters, mid-word. Each of these credits runs to about 110, so
+      // at the picture's fitted height it has to come down to a form that
+      // fits, ends at a whole word, and keeps the label and the licence.
+      const wh = wp.whispers;
+      check('A LONG PICTURE CREDIT IS SHORTENED AT A WORD, NOT CLIPPED: every credit on a ' +
+        'worst-case picture page fits its picture edge, is one of the whole-word forms, ' +
+        'and still says "Not the event itself" and "CC BY-SA 4.0"',
+        wh.length > 0 && wh.every((w) => w.fits && w.forms.indexOf(w.text) >= 0 &&
+          w.text.indexOf('Not the event itself') === 0 && /CC BY-SA 4\.0/.test(w.text)) &&
+        wh.some((w) => w.text !== w.forms[0]),
+        JSON.stringify(wh.map((w) => ({ text: w.text, fits: w.fits }))));
+      check('and the source is what goes first: no shortened credit still names Wikimedia Commons ' +
+        'while the creator has lost words',
+        wh.every((w) => !(/…/.test(w.text) && /Wikimedia Commons/.test(w.text))));
 
       // Defect 2: five owed credits on the closing page.
       const closing = wp.report.filter((p) => p.kind === 'closing');
@@ -676,6 +697,142 @@ console.log('\nA BIG FILE IS NOT A WRONG FILE (2026-10-12, the oak)');
     .then(() => check('a runaway file above the ceiling is still refused', false),
       (e) => check('a runaway file above the ceiling is still refused', /too large/.test(e.message), e.message))
     .then(() => { global.fetch = realFetch; }));
+}
+
+console.log('\nTHE CREDIT ON THE PICTURE GETS SHORTER AT A WORD (audit 2026-10-13, finding 4)');
+{
+  const { creditVariants } = require('./deck');
+  const pic = { kind: 'shelf', creator: 'National Oceanic and Atmospheric Administration Fisheries',
+    licenceLabel: 'CC BY-SA 4.0', source: 'Wikimedia Commons' };
+  const v = creditVariants ? creditVariants(pic) : [];
+  check('the forms run from the full credit to the shortest, each one shorter than the last',
+    v.length > 2 && v[0] === creditLine(pic) && v.every((x, i) => i === 0 || x.length < v[i - 1].length),
+    JSON.stringify(v));
+  check('EVERY FORM KEEPS "Symbol picture" AND THE LICENCE NAME',
+    v.length > 0 && v.every((x) => x.indexOf('Symbol picture · ') === 0 && / · CC BY-SA 4\.0( · |$)/.test(x)), JSON.stringify(v));
+  check('the source is dropped first, before the creator loses a single word',
+    v[1] === 'Symbol picture · National Oceanic and Atmospheric Administration Fisheries · CC BY-SA 4.0', v[1]);
+  check('A SHORTENED CREATOR ENDS AT A WHOLE WORD, marked with an ellipsis, never on "and"',
+    v.slice(2, -1).length > 0 && v.slice(2, -1).every((x) => {
+      const c = x.split(' · ')[1];
+      return /^[A-Za-z ]+ …$/.test(c) && pic.creator.indexOf(c.slice(0, -2)) === 0 &&
+        pic.creator.charAt(c.length - 2) === ' ' && !/ and …$/.test(c);
+    }), JSON.stringify(v.slice(2, -1)));
+  check('and the last resort is label and licence alone', v[v.length - 1] === 'Symbol picture · CC BY-SA 4.0');
+  const html = buildHtml(Object.assign({}, spec, { slides: spec.slides.map((s, i) => Object.assign({}, s,
+    { resolvedPicture: i === 0 ? Object.assign({ dataUri: 'data:image/jpeg;base64,AA==' }, pic) : null })) }));
+  check('THE FULL CREDIT STAYS ON THE CLOSING PAGE, creator, licence and source, whatever the slide shows',
+    html.indexOf('Pictures: National Oceanic and Atmospheric Administration Fisheries · CC BY-SA 4.0 · Wikimedia Commons') >= 0);
+}
+
+console.log('\nTHE DECK DOES NOT WAIT ON GOOGLE FONTS (audit 2026-10-13, finding 1)');
+{
+  spec.slides.forEach((s) => { s.resolvedPicture = null; });
+  const html = buildHtml(spec);
+  check('NO REMOTE ADDRESS ANYWHERE IN THE PAGE: a stalled font request used to end the job with no deck',
+    !/https?:\/\//.test(html.replace(/<p[^>]*>[\s\S]*?<\/p>/g, '')), (html.match(/https?:\/\/[^'")\s]+/g) || []).join(' '));
+  const files = [...html.matchAll(/src: url\('(file:[^']+)'\)/g)].map((m) => require('url').fileURLToPath(m[1]));
+  check('the font is two files kept in render/fonts, upright and italic, and both are there',
+    files.length === 2 && files.every((f) => fs.existsSync(f) && fs.statSync(f).size > 100000), JSON.stringify(files));
+  check('and the font\'s licence travels with it (SIL Open Font License)',
+    /SIL Open Font License/.test(fs.readFileSync(path.join(__dirname, 'fonts', 'OFL.txt'), 'utf8')));
+  const os = require('os');
+  pending.push(Promise.all(pending.slice()).then(async () => {
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'gnd-font-')), 'deck.html');
+    fs.writeFileSync(file, html);
+    const puppeteer = require('puppeteer');
+    const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+    try {
+      const page = await browser.newPage();
+      // Every request that is not the page's own file is refused, which is
+      // what a Sunday with Google Fonts down looks like to the renderer.
+      await page.setRequestInterception(true);
+      const remote = [];
+      page.on('request', (r) => {
+        if (/^(file|data):/.test(r.url())) r.continue(); else { remote.push(r.url()); r.abort(); }
+      });
+      await page.goto('file://' + file, { waitUntil: 'networkidle0', timeout: 15000 });
+      await page.evaluateHandle('document.fonts.ready');
+      const loaded = await page.evaluate(() => Array.from(document.fonts)
+        .filter((f) => f.family.replace(/"/g, '') === 'Montserrat' && f.status === 'loaded').map((f) => f.style));
+      check('WITH THE NETWORK CUT OFF, MONTSERRAT STILL LOADS, upright and italic, and nothing remote is asked for',
+        loaded.indexOf('normal') >= 0 && loaded.indexOf('italic') >= 0 && remote.length === 0,
+        JSON.stringify({ loaded, remote }));
+    } finally {
+      await browser.close();
+    }
+  }));
+}
+
+console.log('\nTHE PICTURE CHECK STOPS AT ITS CAP (audit 2026-10-13, finding 2)');
+{
+  const chooserPath = require.resolve('./chooser');
+  const subjectPath = require.resolve('./subject');
+  const editorPath = require.resolve('./editor-check');
+  pending.push(Promise.all(pending.slice()).then(async () => {
+    const realSubject = require.cache[subjectPath].exports.subjectPicture;
+    const realEditor = require.cache[editorPath].exports.editorApproves;
+    let asked = 0;
+    require.cache[subjectPath].exports.subjectPicture = async () => ({ imageUrl: 'https://example.org/x.jpg',
+      dataUri: 'data:image/jpeg;base64,AA==', subject: 'Deimos', licenceLabel: 'Public domain' });
+    require.cache[editorPath].exports.editorApproves = async () => { asked++; return { ok: true, why: 'shows it' }; };
+    delete require.cache[chooserPath];
+    const { choosePicture, rules } = require('./chooser');
+    const cap = rules().editorCheck.maxSlides;
+    const ctx = { usedThisDeck: new Set(), editorChecks: 0 };
+    const lines = [];
+    const got = [];
+    for (let i = 0; i < cap + 2; i++) {
+      got.push(await choosePicture({ summary: 'Deimos was mapped.', picture: { subject: 'Deimos' } },
+        (l) => lines.push(l), ctx));
+    }
+    require.cache[subjectPath].exports.subjectPicture = realSubject;
+    require.cache[editorPath].exports.editorApproves = realEditor;
+    delete require.cache[chooserPath];
+    check('maxSlides IS READ: the editor is asked at most ' + cap + ' times in one deck, never more',
+      typeof cap === 'number' && cap > 0 && asked === cap, 'asked ' + asked + ' times, cap ' + cap);
+    check('a picture past the cap is LEFT OUT, the same rule as no key: no check, no picture',
+      got.slice(0, cap).every((p) => p !== null) && got.slice(cap).every((p) => p === null) &&
+      lines.some((l) => /its cap of/.test(l)), lines.filter((l) => /cap/.test(l)).join(' | '));
+  }));
+}
+
+console.log('\nA LICENCE IS ACCEPTED BY NAME, NOT BY NOT BEING REFUSED (audit 2026-10-13, finding 3)');
+{
+  const { licenceLabel, commonsFile } = require('./subject');
+  const L = licenceLabel || (() => 'not built');
+  const yes = { 'PD': 'Public domain', 'Public domain': 'Public domain', 'PDM': 'Public domain', 'CC0': 'CC0',
+    'CC BY-SA 4.0': 'CC BY-SA 4.0', 'CC BY 2.0': 'CC BY 2.0', 'CC BY-SA 3.0 de': 'CC BY-SA 3.0 de',
+    'CC BY-SA 3.0 ee': 'CC BY-SA 3.0 ee', 'cc-by-sa-4.0': 'CC BY-SA 4.0', 'cc-by-3.0-de': 'CC BY 3.0 de' };
+  check('PUBLIC DOMAIN, CC0, CC BY AND CC BY-SA PASS, any version or country, under their own names',
+    Object.keys(yes).every((k) => L(k) === yes[k]), JSON.stringify(Object.keys(yes).map((k) => [k, L(k)])));
+  const no = ['Attribution', 'CC BY-NC 2.0', 'CC BY-ND 4.0', 'CC BY-NC-SA 4.0', 'GFDL 1.2', 'GPL',
+    'Free Art License', 'Copyrighted free use', 'FAL', ''];
+  check('EVERYTHING ELSE IS REFUSED, including a bare "Attribution" and names nobody thought of',
+    no.every((k) => L(k) === ''), JSON.stringify(no.map((k) => [k, L(k)])));
+
+  const realFetch = global.fetch;
+  const commons = (meta) => async () => ({ ok: true, status: 200, json: async () => ({ query: { pages: { '1': {
+    imageinfo: [{ thumburl: 'https://x/a.jpg', extmetadata: meta }] } } } }) });
+  const meta = (shortName, code) => Object.assign({ LicenseShortName: { value: shortName },
+    AttributionRequired: { value: 'true' }, Artist: { value: 'Ann Maker' } }, code ? { License: { value: code } } : {});
+  const tryFile = (m) => { global.fetch = commons(m); return commonsFile('A.jpg', () => {}).then((p) => p, (e) => e); };
+  pending.push(Promise.all(pending.slice())
+    .then(async () => {
+      const unknown = await tryFile(meta('Some Custom Licence'));
+      const bare = await tryFile(meta('Attribution', 'attribution'));
+      const mapped = await tryFile(meta('Attribution', 'cc-by-2.0'));
+      const port = await tryFile(meta('CC BY-SA 3.0 de', 'cc-by-sa-3.0-de'));
+      check('A LICENCE NAME NOBODY THOUGHT OF IS REFUSED: the old block-list let it through',
+        unknown instanceof Error && /allow-list/.test(unknown.message), String(unknown && (unknown.message || unknown.licenceLabel)));
+      check('A BARE "Attribution" WITH NOTHING BEHIND IT IS REFUSED, never printed on a slide as a licence',
+        bare instanceof Error, String(bare && (bare.message || bare.licenceLabel)));
+      check('"Attribution" whose machine code says cc-by-2.0 is printed as "CC BY 2.0"',
+        mapped && mapped.licenceLabel === 'CC BY 2.0', String(mapped && (mapped.message || mapped.licenceLabel)));
+      check('a country port passes under its own name: "CC BY-SA 3.0 de"',
+        port && port.licenceLabel === 'CC BY-SA 3.0 de', String(port && (port.message || port.licenceLabel)));
+    })
+    .finally(() => { global.fetch = realFetch; }));
 }
 
 Promise.all(pending).then(() => {

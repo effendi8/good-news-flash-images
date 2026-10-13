@@ -197,6 +197,22 @@ function fitDeck(L) {
         rep.cut++;
         row = stepType(body, els, big ? bigTable : storyTable);
       }
+      // THE PICTURE CREDIT, last, once the picture's height is settled
+      // (audit 2026-10-13). deck.js hands over every form of the credit from
+      // longest to shortest, each ending at a whole word; the first that
+      // fits the picture's edge is kept. Before this the line was clipped
+      // at whatever letter reached the bottom of the picture.
+      var wh = pg.querySelector('.whisper');
+      if (wh && wh.dataset.credits) {
+        var forms = [];
+        try { forms = JSON.parse(wh.dataset.credits); } catch (e) { forms = []; }
+        for (var f = 0; f < forms.length; f++) {
+          wh.textContent = forms[f];
+          if (fits(wh)) break;
+        }
+        rep.credit = f === 0 ? 'full' : (f < forms.length ? 'short' : 'clipped');
+        if (f >= forms.length && forms.length) wh.textContent = forms[forms.length - 1];
+      }
       rep.type = row; rep.fitted = !!row;
       if (sum) rep.summary = sum.textContent;
     }
@@ -222,6 +238,8 @@ function describe(rep) {
   else if (rep.picture && rep.picture !== LIMITS.pictureSteps[0]) bits.push(`picture ${rep.picture}%`);
   if (rep.cut) bits.push(`summary cut by ${rep.cut} sentence${rep.cut > 1 ? 's' : ''}`);
   if (rep.credits === 'short') bits.push('credits in short form');
+  if (rep.credit === 'short') bits.push('picture credit shortened on the slide');
+  if (rep.credit === 'clipped') bits.push('picture credit clipped even at its shortest');
   bits.push(`words end at y=${rep.maxBottom}, x=${rep.maxRight}`);
   if (rep.overflow) bits.push('STILL OVERFLOWS: ' + (rep.bad.slice(0, 3).join('; ') || 'does not fit at the floor'));
   return bits.join(', ');
