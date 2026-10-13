@@ -32,6 +32,9 @@
  *      no page number, which LinkedIn prints above the page anyway.
  */
 
+const path = require('path');
+const { pathToFileURL } = require('url');
+
 const NAVY = '#003366';
 const PAPER = '#F5F5F5';
 const YELLOW = '#FFC107';
@@ -82,6 +85,43 @@ function creditLine(pic) {
   return bits.join(' · ');
 }
 
+/**
+ * THE CREDIT, FROM LONGEST TO SHORTEST, every form ending at a whole word
+ * (audit 2026-10-13). The rotated 12px line has only the picture's height
+ * to run in, and that height steps down with the words (fit.js: 44, 38, 32
+ * percent of the page). At 12px about 90 characters fit at the largest step
+ * and fewer at the smallest, and the line was simply clipped mid-word at
+ * whatever length it reached. fit.js now tries these in order and keeps the
+ * first that fits.
+ *
+ * The order is the order of what matters on the slide. The label ("Symbol
+ * picture", "Not the event itself", "Stock picture") never goes, because it
+ * is the reader's protection against taking the picture for the scene. The
+ * licence name never goes, because it says the picture is used under terms.
+ * The source goes first: the closing page names it anyway. Then the creator
+ * loses words from the end, marked with an ellipsis so no shortened name
+ * passes for a whole one, and last the creator goes from the slide
+ * altogether. The full credit always stays on the closing page, which is
+ * where the licence's attribution is complete.
+ */
+function creditVariants(pic) {
+  if (!pic) return [];
+  const full = creditLine(pic);
+  const label = full.split(' · ')[0];
+  const join = (creator) => [label, creator, pic.licenceLabel].filter(Boolean).join(' · ');
+  const out = [full];
+  const words = String(pic.creator || '').split(/\s+/).filter(Boolean);
+  out.push(join(words.join(' ')));
+  for (let n = words.length - 1; n >= 1; n--) {
+    // A cut that ends on "and" or "of" reads as a typo, so those go too.
+    const kept = words.slice(0, n).join(' ').replace(/[\s,;:(·-]+$/, '')
+      .replace(/\s+(and|of|the|for|de|von|van|der|&)$/i, '');
+    out.push(join(kept + ' …'));
+  }
+  out.push(join(''));
+  return out.filter((v, i) => v && out.indexOf(v) === i);
+}
+
 /** A story slide: picture, the summary, what it proves, outlet and page. */
 function storySlide(s, i, total) {
   const pic = s.resolvedPicture;
@@ -125,7 +165,7 @@ function storySlide(s, i, total) {
   return `
   <section class="page"${lead ? ` data-figure="${esc(lead)}"` : ''}>
     <div class="photo tall" style="background-image:url('${pic.dataUri}')">
-      ${credit ? `<div class="whisper">${esc(credit)}</div>` : ''}
+      ${credit ? `<div class="whisper" data-credits="${esc(JSON.stringify(creditVariants(pic)))}">${esc(credit)}</div>` : ''}
     </div>
     <div class="body">
       <p class="summary">${esc(s.summary)}</p>
@@ -269,14 +309,36 @@ function humanWeek(monday) {
   return `week of ${back.getUTCDate()} ${m[back.getUTCMonth()]}`;
 }
 
+/**
+ * THE FONT TRAVELS WITH THE REPO (audit 2026-10-13). The deck used to load
+ * Montserrat from Google Fonts at render time, the only thing on the page
+ * that came over the network. A stalled request there waits out puppeteer's
+ * 30 second default, the render throws, and Monday gets no deck. Two cures
+ * were on the table: wait a few seconds and fall back to Arial, or keep the
+ * font file here. The second is the simpler and the more robust one: there
+ * is no timer to tune, the deck never quietly changes typeface, and fit.js
+ * measures the very glyphs that ship every time, offline or not. Montserrat
+ * is under the SIL Open Font License (render/fonts/OFL.txt), which allows
+ * exactly this. The files are Google's own variable fonts (weights 100 to
+ * 900), so the 400, 600 and 700 used here are the same outlines as before.
+ */
+const FONT_DIR = path.join(__dirname, 'fonts');
+const FONT_FILES = {
+  normal: path.join(FONT_DIR, 'Montserrat-Variable.ttf'),
+  italic: path.join(FONT_DIR, 'Montserrat-Italic-Variable.ttf')
+};
+
+function fontFaces() {
+  return Object.keys(FONT_FILES).map((style) => `
+  @font-face { font-family: Montserrat; font-style: ${style}; font-weight: 100 900;
+    src: url('${pathToFileURL(FONT_FILES[style]).href}') format('truetype'); }`).join('');
+}
+
 function buildHtml(spec) {
   const total = spec.slides.length + 2;
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap">
-<style>
+<style>${fontFaces()}
   @page { size: ${W}px ${H}px; margin: 0; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: ${PAPER}; }
@@ -418,4 +480,4 @@ ${closingSlide(spec)}
 </body></html>`;
 }
 
-module.exports = { buildHtml, creditLine, W, H };
+module.exports = { buildHtml, creditLine, creditVariants, W, H };

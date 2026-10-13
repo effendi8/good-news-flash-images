@@ -37,7 +37,9 @@ async function main() {
   if (!spec.title) throw new Error('the spec carries no title, and Buffer refuses a document post without one');
   log(`Rendering ${spec.monday}: ${spec.slides.length} stories, title "${spec.title}"`);
 
-  const pictureCtx = { monday: spec.monday, usedThisDeck: new Set() };
+  // editorChecks counts the picture checks this deck has spent, against
+  // editorCheck.maxSlides in picture-rules.json (chooser.js, 2026-10-13).
+  const pictureCtx = { monday: spec.monday, usedThisDeck: new Set(), editorChecks: 0 };
   for (const slide of spec.slides) {
     if (noPictures) { slide.resolvedPicture = null; continue; }
     log(`Slide ${slide.n}: ${String(slide.summary || '').slice(0, 64)}...`);
@@ -99,9 +101,16 @@ async function main() {
     const page = await browser.newPage();
     await page.setViewport({ width: 1080, height: 1350, deviceScaleFactor: 1 });
     await page.goto('file://' + path.resolve(htmlPath), { waitUntil: 'networkidle0' });
-    // Google Fonts must be in before anything is measured, or the first page
-    // renders in the fallback face and the rest do not.
+    // The font must be in before anything is measured, or the first page
+    // renders in the fallback face and the rest do not. Since 2026-10-13 it
+    // is a file in render/fonts (deck.js says why), so this wait no longer
+    // depends on any network and cannot stall on Google Fonts.
     await page.evaluateHandle('document.fonts.ready');
+    const faces = await page.evaluate(() => Array.from(document.fonts)
+      .filter((f) => f.family.replace(/"/g, '') === 'Montserrat' && f.status === 'loaded').length);
+    // A missing font file is logged, not fatal: the fallback face is still
+    // measured by the same fitter below, so the deck is ugly, never clipped.
+    if (!faces) log('  WARNING: Montserrat did not load from render/fonts; the deck uses the fallback face');
 
     // ---- Nothing may sit in LinkedIn's fade or under its buttons ---------
     // The first render clipped "by one person deciding to do it." behind the
