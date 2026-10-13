@@ -289,21 +289,25 @@ async function commonsFile(fileName, log) {
   const em = ii.extmetadata || {};
   const val = (k) => ((em[k] || {}).value || '');
   const strip = (h) => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  const licence = strip(val('LicenseShortName'));
+  const shortName = strip(val('LicenseShortName'));
   const owed = String(val('AttributionRequired')).toLowerCase() === 'true';
   const restrictions = strip(val('Restrictions'));
   // A file carrying a use restriction (trademark, personality rights) is not
   // worth the argument on a Page that publishes five of these a week.
   if (restrictions) throw new Error(`file carries restrictions: ${restrictions}`);
-  if (/non-?commercial|\bnc\b|no derivative|\bnd\b/i.test(licence)) {
-    throw new Error(`licence is not usable commercially: ${licence}`);
-  }
-  // A LICENCE THAT WANTS ITS OWN TEXT PRINTED does not fit on a slide
-  // (2026-09-27: the African elephant came back under GFDL 1.2, which
-  // requires a copy of the licence to travel with the picture). Public
-  // domain and the simple credit licences only.
-  if (/\bgfdl\b|gnu free documentation|\bgpl\b|\blgpl\b|free art licen[cs]e/i.test(licence)) {
-    throw new Error(`licence requires its full text to be printed: ${licence}`);
+  // AN ALLOW-LIST, NOT A BLOCK-LIST (audit 2026-10-13). The old check
+  // refused nc, nd, GFDL and GPL by name and let everything else through,
+  // so a licence nobody had thought of passed by default, and a bare
+  // "Attribution" was printed on a slide as if it were a licence name. Now
+  // only public domain, CC0, CC BY and CC BY-SA pass (the four Stefan
+  // accepted on 2026-09-27, any version or country port), and the label on
+  // the slide is the recognised name, never Commons' text as is. Commons'
+  // machine code (field "License", e.g. "cc-by-sa-4.0") is the second
+  // reading when the short name is not recognised. Anything else is refused,
+  // and the entry's next photo is tried, as for GFDL before.
+  const licence = licenceLabel(shortName) || licenceLabel(strip(val('License')));
+  if (!licence) {
+    throw new Error(`licence is not on the allow-list (public domain, CC0, CC BY, CC BY-SA): ${shortName || 'none given'}`);
   }
   // A CREDIT THAT IS OWED NEEDS A NAME TO GIVE IT TO (audit 2026-09-27).
   // "A name or nothing" is right for public domain and CC0; under CC BY or
@@ -318,11 +322,30 @@ async function commonsFile(fileName, log) {
   return {
     imageUrl: ii.thumburl || ii.url,
     creator,
-    licenceLabel: licence || 'see Wikimedia Commons',
+    licenceLabel: licence,
     owedCredit: owed,
     source: 'Wikimedia Commons',
     landing: ii.descriptionurl || ''
   };
+}
+
+/**
+ * The licence's recognised name, or '' when it is not one we accept
+ * (audit 2026-10-13, see commonsFile). Reads both Commons' short name
+ * ("CC BY-SA 3.0 de", "Public domain") and its machine code ("cc-by-sa-3.0-de",
+ * "pd", "cc0"), because the two are filled by different templates and either
+ * may be the one that is readable. Returns the name printed on the slide:
+ * "Public domain", "CC0", or "CC BY" / "CC BY-SA" with version and port.
+ */
+function licenceLabel(raw) {
+  const s = String(raw || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!s) return '';
+  if (/^(pd|pdm|public[ -]domain|public domain mark(?: \d\.\d)?|pd[ -]?mark(?:[ -]\d\.\d)?)$/.test(s)) return 'Public domain';
+  if (/^cc[ -]?0(?:[ -]1\.0)?$|^cc[ -]zero$/.test(s)) return 'CC0';
+  // "cc by-sa 4.0", "cc-by-sa-4.0", "cc by 3.0 de", "cc-by-3.0-de", "cc by-sa 3.0 igo"
+  const m = s.match(/^cc[ -]by(-sa)?(?:[ -](\d\.\d))?(?:[ -]([a-z]{2,3}))?$/);
+  if (!m) return '';
+  return 'CC BY' + (m[1] ? '-SA' : '') + (m[2] ? ' ' + m[2] : '') + (m[3] ? ' ' + m[3] : '');
 }
 
 /**
@@ -409,4 +432,4 @@ async function subjectPicture(text, named, log) {
   return null;
 }
 
-module.exports = { subjectPicture, commonsFile, candidatePhrases, cleanCreator, youngWord };
+module.exports = { subjectPicture, commonsFile, candidatePhrases, cleanCreator, youngWord, licenceLabel };

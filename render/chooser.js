@@ -53,7 +53,7 @@ async function choosePicture(slide, log, ctx) {
     catch (e) { say(`    subject picture threw (${e.message})`); }
     if (pic) {
       pic.kind = 'subject';
-      if (await passesEditor(pic, slide, r, say) && await fetchBytes(pic, say)) return pic;
+      if (await passesEditor(pic, slide, r, say, c) && await fetchBytes(pic, say)) return pic;
     }
   }
 
@@ -80,7 +80,7 @@ async function choosePicture(slide, log, ctx) {
     }
     if (pic) {
       pic.kind = 'library';
-      if (await passesEditor(pic, slide, r, say) && await fetchBytes(pic, say)) return pic;
+      if (await passesEditor(pic, slide, r, say, c) && await fetchBytes(pic, say)) return pic;
     }
   }
 
@@ -125,8 +125,25 @@ async function fetchBytes(pic, say) {
  * approved does not go on a slide. That costs a picture, which the number
  * graphic replaces, and never a Monday.
  */
-async function passesEditor(pic, slide, r, say) {
+async function passesEditor(pic, slide, r, say, ctx) {
   if (!(r.editorCheck && r.editorCheck.enabled)) return true;
+  // THE CAP IS ENFORCED, NOT JUST WRITTEN DOWN (audit 2026-10-13). The
+  // switch has promised "at most five a week" since 2026-09-27, and
+  // maxSlides sat in picture-rules.json read by nothing. Each check is a
+  // paid model call, so the deck counts the checks it has asked for and
+  // stops at the cap. A picture past the cap is unchecked, and an unchecked
+  // picture is left out, the same rule as a missing key: the cap can cost a
+  // picture, never a Monday and never money beyond the cap. A missing or
+  // unreadable cap counts as five, the figure the switch promises.
+  const raw = r.editorCheck.maxSlides;
+  const cap = typeof raw === 'number' && raw >= 0 ? raw : 5;
+  const c = ctx || {};
+  if ((c.editorChecks || 0) >= cap) {
+    say(`    the editor check has run ${c.editorChecks || 0} time(s) this deck, its cap of ${cap}; ` +
+      'the picture is left out unchecked');
+    return false;
+  }
+  c.editorChecks = (c.editorChecks || 0) + 1;
   try {
     const verdict = await editorApproves(pic, slide, r.editorCheck, say);
     if (verdict === null) {

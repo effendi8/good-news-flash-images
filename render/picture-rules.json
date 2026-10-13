@@ -24,7 +24,7 @@
 
   "editorCheck": {
     "enabled": true,
-    "_why": "Our own editor looks at the chosen picture and may reject it. ON since Stefan's OK of 2026-09-27, after a test on 108 published stories found about one picture in four wrong without it. It needs an ANTHROPIC_API_KEY secret on the repository. With the flag on and no key, or any failure of the check, the picture is LEFT OUT and the slide shows its number, so a missing key costs pictures, never a Monday. Cost: one small picture question per named subject, at most five a week.",
+    "_why": "Our own editor looks at the chosen picture and may reject it. ON since Stefan's OK of 2026-09-27, after a test on 108 published stories found about one picture in four wrong without it. It needs an ANTHROPIC_API_KEY secret on the repository. With the flag on and no key, or any failure of the check, the picture is LEFT OUT and the slide shows its number, so a missing key costs pictures, never a Monday. Cost: one small picture question per named subject, at most five a week. maxSlides is that cap, counted per deck in chooser.js since 2026-10-13; a picture past it is left out unchecked.",
     "model": "claude-haiku-4-5-20251001",
     "maxSlides": 5
   },
