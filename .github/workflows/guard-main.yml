@@ -13,6 +13,8 @@ name: main only moves by a pull request
 #
 # WHAT IS ALLOWED WITHOUT A PULL REQUEST, and nothing else:
 #   - carousel/*.pdf, *.png, *.json   the deck and the week's stories
+#   - heartbeat/last-run.txt          the script's daily "still alive" note,
+#                                     read by the outside alarm (2026-10-16)
 #   - anything pushed by the renderer itself
 # Everything else on a direct push fails this check loudly. It cannot undo
 # the push, GitHub has no mechanism for that, but it turns a silent breach
@@ -53,7 +55,7 @@ jobs:
           echo "Files in this push:"
           echo "$CHANGED" | sed 's/^/  /'
 
-          OFFENDING=$(echo "$CHANGED" | grep -vE '^carousel/[0-9-]+\.(pdf|png|json)$' || true)
+          OFFENDING=$(echo "$CHANGED" | grep -vE '^carousel/[0-9-]+\.(pdf|png|json)$|^heartbeat/last-run\.txt$' || true)
           if [ -n "$OFFENDING" ]; then
             echo ""
             echo "REFUSED: code reached main without a pull request."
