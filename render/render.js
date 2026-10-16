@@ -39,7 +39,11 @@ async function main() {
 
   // editorChecks counts the picture checks this deck has spent, against
   // editorCheck.maxSlides in picture-rules.json (chooser.js, 2026-10-13).
-  const pictureCtx = { monday: spec.monday, usedThisDeck: new Set(), editorChecks: 0 };
+  // Shelf pictures he retired on the admin page arrive as spec.shelfExclude
+  // (2026-10-16). Counting them as already used in this deck is all it takes:
+  // the shelf never offers a used picture twice.
+  const shelfExclude = Array.isArray(spec.shelfExclude) ? spec.shelfExclude.filter((x) => typeof x === 'string') : [];
+  const pictureCtx = { monday: spec.monday, usedThisDeck: new Set(shelfExclude), editorChecks: 0 };
   for (const slide of spec.slides) {
     if (noPictures) { slide.resolvedPicture = null; continue; }
     log(`Slide ${slide.n}: ${String(slide.summary || '').slice(0, 64)}...`);

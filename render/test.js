@@ -678,6 +678,14 @@ console.log('\nTHE SHELF: SYMBOL PICTURES STEFAN APPROVED, AND NOTHING ELSE (202
     () => {}, { shelf, usedRecently: none })
     .then((p) => check('every shelf file failing its check: no picture, never a throw', p === null)));
 
+  // A picture he retired on the admin page reaches render.js as
+  // spec.shelfExclude and is put into the deck's used set (2026-10-16).
+  const okCommons = async (file) => ({ imageUrl: 'https://x/' + file, creator: 'S', licenceLabel: 'CC0', owedCredit: false, source: 'Wikimedia Commons' });
+  pending.push(shelfPicture(slide, '2026-10-19', new Set(['home-4']), okCommons, () => {}, { shelf, usedRecently: none })
+    .then((p) => check('A RETIRED SHELF PICTURE (in the used set) IS NEVER PICKED', !p || p.shelfId !== 'home-4', JSON.stringify(p))));
+  check('render.js puts spec.shelfExclude into the deck\'s used set',
+    /usedThisDeck: new Set\(shelfExclude\)/.test(fs.readFileSync(path.join(__dirname, 'render.js'), 'utf8')));
+
   const rules = JSON.parse(fs.readFileSync(path.join(__dirname, 'picture-rules.json'), 'utf8'));
   check('the shelf rung is ON and the library search is still OFF',
     rules.shelf && rules.shelf.enabled === true && rules.librarysearch.enabled === false);
