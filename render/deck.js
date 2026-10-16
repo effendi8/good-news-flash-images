@@ -238,13 +238,17 @@ function coverSlide(spec) {
   // twice costs nothing: almost nobody reads both, and the one who does
   // reads the same sentence.
   //
+  // THE BAND CARRIES THE NAME (Stefan, 2026-10-16: "Fill the blue band").
+  // In the feed LinkedIn prints the document title over it, so nothing there
+  // changes; opened full screen it read as an empty bar.
+  //
   // Empty is a real answer, not a gap to fill: the trend library refuses to
   // offer anything it cannot still verify, and the recap ships without the
   // line rather than with a stale number. The cover does the same.
   const zoom = plainLetters(String(spec.zoomOut || '')).trim();
   return `
   <section class="page cover">
-    <div class="clear"></div>
+    <div class="clear"><span class="kicker">Good News <em>Weekly</em></span></div>
     <div class="cover-body">
       <div class="sun"></div>
       <h1>${esc(spec.title)}</h1>
