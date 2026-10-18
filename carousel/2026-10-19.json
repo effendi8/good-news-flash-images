@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "monday": "2026-10-19",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: Since 1990, Europe has cut its greenhouse gas emissions by 37%. Over the same years its economy grew by 68%. (European Environment Agency)",
+  "quote": {
+    "text": "What you do makes a difference, and you have to decide what kind of difference you want to make.",
+    "by": "Jane Goodall"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "innovation",
+      "summary": "The world's largest wildlife crossing, a $114 million bridge over ten lanes of California's Highway 101, is set to open December 2, giving inbred Santa Monica Mountains lions a path to mates beyond the freeway.",
+      "headline": "Wildlife crossing opens over California Highway 101",
+      "proves": "Wildlife officials expect kittens born this year to a Simi Hills lion named P-113 to be among the first to use the bridge.",
+      "outlet": "latimes.com",
+      "url": "https://www.latimes.com/environment/story/2026-10-08/wallis-annenberg-wildlife-crossing-is-on-track-to-open-this-winter-unless-el-nino-intervenes",
+      "numbers": [
+        "$114 million",
+        "101",
+        "113"
+      ],
+      "picture": {
+        "subject": "Highway 101",
+        "concept": "",
+        "query": "The world's largest wildlife crossing"
+      }
+    },
+    {
+      "n": 2,
+      "category": "community",
+      "summary": "Payton Obert turned a childhood lemonade stand she started at age 8 into a charity network that has now raised $5 million for children facing illness and hardship across eight years.",
+      "headline": "Payton Obert's lemonade stand charity raised 5 million",
+      "proves": "A single child's fundraiser can grow into a registered nonprofit with stands running across six US states.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/teens-wish-to-return-kindness-she-received-sees-her-lemonade-stand-become-5-million-charity-engine/",
+      "numbers": [
+        "$5 million"
+      ],
+      "picture": {
+        "subject": "Payton Obert",
+        "concept": "donation",
+        "query": "Payton Obert turned a childhood lemonade stand she"
+      }
+    },
+    {
+      "n": 3,
+      "category": "innovation",
+      "summary": "Vasi, a sloth bear rescued by Wildlife SOS in India after a snare trap cost him a leg, became the first bear in the world fitted with a prosthetic paw in September 2025.",
+      "headline": "Sloth bear Vasi fitted with prosthetic paw",
+      "proves": "Custom animal prosthetics already used on horses and birds can now restore a bear's ability to walk.",
+      "outlet": "Good Good Good",
+      "url": "https://www.goodgoodgood.co/articles/endangered-species-sloth-bear-prosthetic-limb",
+      "numbers": [],
+      "picture": {
+        "subject": "Wildlife SOS",
+        "concept": "vet_care",
+        "query": "Vasi"
+      }
+    },
+    {
+      "n": 4,
+      "category": "community",
+      "summary": "Arizona teen Jordan Hope gave the sneakers off his own feet to a struggling elderly stranger outside a Maricopa Walgreens, and the friendship that followed has raised more than $15,000 for the man.",
+      "headline": "Teen's sneaker gift sparked friendship raising 15000",
+      "proves": "A single act of kindness, once shared online, can draw more than $15,000 in community support for one person.",
+      "outlet": "fox10phoenix.com",
+      "url": "https://www.fox10phoenix.com/news/arizona-teen-gives-shoes-off-his-feet-struggling-stranger-viral-act-kindness",
+      "numbers": [
+        "$15,000"
+      ],
+      "picture": {
+        "subject": "Jordan Hope",
+        "concept": "elderly_care",
+        "query": "Arizona teen Jordan Hope gave the sneakers off"
+      }
+    },
+    {
+      "n": 5,
+      "category": "health",
+      "summary": "All 32 patients in the NEOPRISM-CRC trial stayed free of bowel cancer recurrence for 33 months after a nine week course of pembrolizumab before surgery, far beating the 25% relapse rate expected with standard chemotherapy.",
+      "headline": "Pembrolizumab kept bowel cancer from returning 33 months",
+      "proves": "Blood tests tracking tumor DNA could let doctors identify which patients can safely skip extra chemotherapy after surgery.",
+      "outlet": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/releases/2026/10/261007042115.htm",
+      "numbers": [
+        "32",
+        "33",
+        "25%"
+      ],
+      "picture": {
+        "subject": "Pembrolizumab",
+        "concept": "",
+        "query": "All 32 patients in the NEOPRISM-CRC trial stayed"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-10-18T17:28:35.300Z",
+  "askedAt": "2026-10-18T17:28:23.284Z"
+}
