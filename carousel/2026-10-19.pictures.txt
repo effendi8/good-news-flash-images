@@ -1,0 +1,31 @@
+{
+  "monday": "2026-10-19",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "number"
+    },
+    {
+      "n": 2,
+      "kind": "shelf",
+      "shelfId": "donation-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Euro_coins_in_hand.jpg"
+    },
+    {
+      "n": 3,
+      "kind": "shelf",
+      "shelfId": "vet_care-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Close-up_of_a_veterinarian_examining_a_maltese_dog_with_a_stethoscope._(51687314898).jpg"
+    },
+    {
+      "n": 4,
+      "kind": "shelf",
+      "shelfId": "elderly_care-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Elderly_person_holding_a_wooden_cane_while_standing_near_a_rustic_background_during_daytime.jpg"
+    },
+    {
+      "n": 5,
+      "kind": "number"
+    }
+  ]
+}
