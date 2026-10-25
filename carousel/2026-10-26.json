@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "monday": "2026-10-26",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: A decade ago, 1 in 4 young women had been married as a child. Today it is 1 in 5. (UNICEF)",
+  "quote": {
+    "text": "Do what you can, with what you have, where you are.",
+    "by": "Theodore Roosevelt"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "community",
+      "summary": "Three Italian friends spent two days scouring a Tuscan mountain stream, found an Irishman's lost wedding ring wedged in the rapids, then flew to Ireland dressed as hobbits to hand it back.",
+      "headline": "Friends find lost wedding ring in Irish stream",
+      "proves": "Filippo Palagi, Nicola Malloggi and Edoardo Poggi now call Patrick Mohr's family in Ireland their own after the visit.",
+      "outlet": "cbc.ca",
+      "url": "https://www.cbc.ca/radio/asithappens/kindness-friendship-story-italy-ireland-9.7383392",
+      "numbers": [],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "Three Italian friends spent two days scouring a"
+      }
+    },
+    {
+      "n": 2,
+      "category": "community",
+      "summary": "Dale, 86, has spent 39 years welding a 62-foot steel boat in his Mineral Wells, Texas yard, and strangers have now raised over $41,000 from 1,500 donors to help him finish it and reach the water.",
+      "headline": "Strangers raise 41000 dollars to help Dale finish his boat",
+      "proves": "The GoFundMe is already close to the $45,000 needed to move the boat down the hill and get it to a launch site.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/total-strangers-help-86-year-old-man-make-40-year-dream-reality/",
+      "numbers": [
+        "86",
+        "39 years",
+        "62"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "volunteers",
+        "query": "Dale"
+      }
+    },
+    {
+      "n": 3,
+      "category": "climate_energy",
+      "summary": "Colorado's 200-foot grass-covered overpass on Interstate 25 helped cut wildlife collisions on that stretch by 91%, from 32 crashes a year down to two in 10 months.",
+      "headline": "Wildlife overpass cuts collisions by 91 percent",
+      "proves": "Elk and pronghorn herds split by the highway for decades could begin interbreeding again, with genetic testing planned in five to ten years to check.",
+      "outlet": "autonocion.com",
+      "url": "https://www.autonocion.com/us/200-foot-wildlife-bridge-colorado-interstate-two-animals/",
+      "numbers": [
+        "200",
+        "25",
+        "91%"
+      ],
+      "picture": {
+        "subject": "Interstate 25",
+        "concept": "",
+        "query": "Colorado's 200-foot grass-covered overpass on Interstate 25 helped"
+      }
+    },
+    {
+      "n": 4,
+      "category": "progress_data",
+      "summary": "China's five national parks saw Siberian tigers rise from 27 to 72 and Amur leopards from 42 to 115 since 2021, while Tibetan antelope topped 70,000, up from under 20,000 in 2015.",
+      "headline": "Siberian tigers rise from 27 to 72 in China parks",
+      "proves": "Nearly 50,000 local residents earning up to 21,000 yuan a year as rangers show conservation can also be a livelihood.",
+      "outlet": "global.chinadaily.com.cn",
+      "url": "https://global.chinadaily.com.cn/a/202610/13/WS6acd8ab2e4b06d4aa0562732.html",
+      "numbers": [
+        "27",
+        "72",
+        "42"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "China's five national parks saw Siberian tigers rise"
+      }
+    },
+    {
+      "n": 5,
+      "category": "climate_energy",
+      "summary": "The Amazon lost just 693,000 hectares to deforestation in 2025, the lowest annual total in the 41-year MapBiomas record.",
+      "headline": "Amazon deforestation hits lowest level in 41 years",
+      "proves": "",
+      "outlet": "Agência Brasil",
+      "url": "https://agenciabrasil.ebc.com.br/en/meio-ambiente/noticia/2026-10/amazon-records-lowest-deforestation-level-41-years",
+      "numbers": [
+        "693,000",
+        "41"
+      ],
+      "picture": {
+        "subject": "Amazon rainforest",
+        "concept": "trees",
+        "query": "The Amazon lost just 693"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-10-25T18:28:27.007Z",
+  "askedAt": "2026-10-25T18:28:14.880Z"
+}
