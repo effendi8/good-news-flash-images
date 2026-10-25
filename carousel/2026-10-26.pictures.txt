@@ -1,0 +1,31 @@
+{
+  "monday": "2026-10-26",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "number"
+    },
+    {
+      "n": 2,
+      "kind": "shelf",
+      "shelfId": "volunteers-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Volunteers_carry_trees_to_planting_sites_(37287300136).jpg"
+    },
+    {
+      "n": 3,
+      "kind": "subject",
+      "shelfId": null,
+      "landing": "https://commons.wikimedia.org/wiki/File:Interstate_25_approaching_Santa_Fe_New_Mexico.jpg"
+    },
+    {
+      "n": 4,
+      "kind": "number"
+    },
+    {
+      "n": 5,
+      "kind": "subject",
+      "shelfId": null,
+      "landing": "https://commons.wikimedia.org/wiki/File:Amazon_Manaus_forest.jpg"
+    }
+  ]
+}
