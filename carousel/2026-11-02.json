@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "monday": "2026-11-02",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: Fifty countries had eliminated at least one neglected tropical disease by 2024. By the end of 2025 it was 58, with 84 diseases seen off in total. (World Health Organization)",
+  "quote": {
+    "text": "One child, one teacher, one book, one pen can change the world.",
+    "by": "Malala Yousafzai"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "health",
+      "summary": "An mRNA vaccine from Merck and Moderna cut melanoma recurrence risk by 42% over two years in a trial of 1,137 patients, with participant Ted Komenda now a year past his last dose and cancer free.",
+      "headline": "mRNA vaccine cuts melanoma recurrence risk by 42%",
+      "proves": "Researchers are now testing related vaccines against kidney, bladder, lung, pancreatic and glioblastoma cancers.",
+      "outlet": "The New York Times",
+      "url": "https://www.nytimes.com/2026/10/23/well/cancer-vaccine-melanoma-study.html",
+      "numbers": [
+        "42%",
+        "1,137"
+      ],
+      "picture": {
+        "subject": "Merck",
+        "concept": "vaccine",
+        "query": "An mRNA vaccine from Merck and Moderna cut"
+      }
+    },
+    {
+      "n": 2,
+      "category": "science",
+      "summary": "Stanford scientists watched a bleached coral fragment regain full color within two weeks after it touched a genetically identical healthy coral in a lab tank.",
+      "headline": "Bleached coral regains full color within two weeks",
+      "proves": "Collins's team is now working to extract and culture the beneficial algae so it could one day be deployed in the field to protect reefs before bleaching hits.",
+      "outlet": "CBC",
+      "url": "https://www.cbc.ca/radio/asithappens/coral-reef-restoration-9.7392408",
+      "numbers": [],
+      "picture": {
+        "subject": "Coral",
+        "concept": "",
+        "query": "Stanford scientists watched a bleached coral fragment regain"
+      }
+    },
+    {
+      "n": 3,
+      "category": "community",
+      "summary": "Josh Law, a 24-year-old US Coast Guard rescue swimmer, followed a helicopter searchlight through pitch darkness and 6 to 8 foot waves to pull 16 people from the Pacific after their boat capsized 140 miles off Mexico's Baja peninsula.",
+      "headline": "Coast Guard swimmer rescues 16 from capsized boat",
+      "proves": "",
+      "outlet": "Yahoo News",
+      "url": "https://www.yahoo.com/news/us/articles/coast-guard-swimmer-24-says-053833795.html",
+      "numbers": [
+        "24",
+        "16",
+        "140"
+      ],
+      "picture": {
+        "subject": "Josh Law",
+        "concept": "rescue",
+        "query": "Josh Law"
+      }
+    },
+    {
+      "n": 4,
+      "category": "progress_data",
+      "summary": "A two-year basic income pilot gave 211 people in three Indigenous communities in the Peruvian Amazon no-strings cash transfers, and a University of Bath analysis published this week found it also eased pressure to exploit the forest.",
+      "headline": "Basic income pilot eased forest exploitation pressure",
+      "proves": "Cool Earth, the charity behind the pilot, plans to expand the scheme.",
+      "outlet": "Positive News",
+      "url": "https://www.positive.news/society/good-news-stories-from-week-43-of-2026/",
+      "numbers": [
+        "211"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "A two-year basic income pilot gave 211 people"
+      }
+    },
+    {
+      "n": 5,
+      "category": "community",
+      "summary": "Port Lincoln fisher Jake Murray and his crewmates found an exhausted kangaroo swimming three kilometres offshore on Saturday 17 October, opened the boat's sea door and brought it safely aboard.",
+      "headline": "Fishermen rescued exhausted kangaroo swimming offshore",
+      "proves": "",
+      "outlet": "Port Lincoln Times",
+      "url": "https://portlincolntimes.com.au/news/2026/10/23/a-crazy-catch-for-fishermen/",
+      "numbers": [
+        "17"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "rescue",
+        "query": "Port Lincoln fisher Jake Murray and his crewmates"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-11-01T18:28:21.738Z",
+  "askedAt": "2026-11-01T18:28:19.149Z"
+}
