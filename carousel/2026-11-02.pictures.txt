@@ -1,0 +1,33 @@
+{
+  "monday": "2026-11-02",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "shelf",
+      "shelfId": "vaccine-3",
+      "landing": "https://commons.wikimedia.org/wiki/File:Syringe,_Vaccine_Bottle,_and_Globe_(51401884141).jpg"
+    },
+    {
+      "n": 2,
+      "kind": "subject",
+      "shelfId": null,
+      "landing": "https://commons.wikimedia.org/wiki/File:Coral_Outcrop_Flynn_Reef.jpg"
+    },
+    {
+      "n": 3,
+      "kind": "shelf",
+      "shelfId": "rescue-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Pilatus_Agusta_A109_Flug.jpg"
+    },
+    {
+      "n": 4,
+      "kind": "number"
+    },
+    {
+      "n": 5,
+      "kind": "shelf",
+      "shelfId": "rescue-2",
+      "landing": "https://commons.wikimedia.org/wiki/File:Rescue_exercise_RCA_2012.jpg"
+    }
+  ]
+}
