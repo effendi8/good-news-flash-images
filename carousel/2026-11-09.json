@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "monday": "2026-11-09",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: Before the vaccine, measles killed about 2.6 million people a year, most of them children. Today it kills about 95,000. (World Health Organization)",
+  "quote": {
+    "text": "Chance favours the prepared mind.",
+    "by": "Louis Pasteur"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "climate_energy",
+      "summary": "Beavers will return to the waters around Loch Ness for the first time in 500 years, after NatureScot licensed Trees for Life and Beaver Trust to bring in at least 15 family groups over three years.",
+      "headline": "Beavers return to Loch Ness waters after 500 years",
+      "proves": "Scotland's wider Beaver Strategy now has a flagship site showing what reintroduction looks like at scale.",
+      "outlet": "news.stv.tv",
+      "url": "https://news.stv.tv/highlands-islands/beavers-to-be-reintroduced-to-loch-ness-500-years-on-from-last-sighting",
+      "numbers": [
+        "500 years",
+        "15"
+      ],
+      "picture": {
+        "subject": "European beaver",
+        "concept": "trees",
+        "query": "Beavers will return to the waters around Loch"
+      }
+    },
+    {
+      "n": 2,
+      "category": "climate_energy",
+      "summary": "The SunZia wind farm in New Mexico now powers more than 1 million homes, with over 900 turbines sending electricity 550 miles across the Southwest, generating more power than the Hoover Dam.",
+      "headline": "SunZia wind farm powers over 1 million homes",
+      "proves": "The project is on track to keep about 9 million metric tons of carbon dioxide out of the atmosphere by next summer.",
+      "outlet": "grist.org",
+      "url": "https://grist.org/solutions/how-the-biggest-renewable-energy-project-in-us-history-finally-got-built/",
+      "numbers": [
+        "1 million",
+        "900",
+        "550"
+      ],
+      "picture": {
+        "subject": "SunZia",
+        "concept": "wind_power",
+        "query": "The SunZia wind farm in New Mexico now"
+      }
+    },
+    {
+      "n": 3,
+      "category": "health",
+      "summary": "Barbados has eliminated mother to child HIV transmission, reporting zero new infant infections from 2022 to 2024 with 98 percent of pregnant women tested and treated.",
+      "headline": "Barbados eliminates mother to child HIV transmission",
+      "proves": "Other countries can match Barbados by offering free antenatal HIV testing and treatment to every pregnant woman regardless of nationality.",
+      "outlet": "who.int",
+      "url": "https://www.who.int/news/item/30-10-2026-barbados-eliminates-mother-to-child-transmission-of-hiv",
+      "numbers": [
+        "98 percent"
+      ],
+      "picture": {
+        "subject": "Barbados",
+        "concept": "",
+        "query": "Barbados has eliminated mother to child HIV transmission"
+      }
+    },
+    {
+      "n": 4,
+      "category": "climate_energy",
+      "summary": "China's mangrove forests nearly tripled from 26,000 to 70,000 acres since 1998, and the bird species recorded in them climbed from 148 to 397.",
+      "headline": "China's mangrove forests nearly triple since 1998",
+      "proves": "The recovery, driven by planting and new protective laws, suggests other nations curbing mangrove loss could see similar wildlife rebounds.",
+      "outlet": "e360.yale.edu",
+      "url": "https://e360.yale.edu/digest/china-mangrove-restoration-bird-species",
+      "numbers": [
+        "26,000",
+        "70,000 acres",
+        "148"
+      ],
+      "picture": {
+        "subject": "Mangrove",
+        "concept": "trees",
+        "query": "China's mangrove forests nearly tripled from 26"
+      }
+    },
+    {
+      "n": 5,
+      "category": "science",
+      "summary": "SLAC physicists confirmed altermagnetism, a third type of magnetism beyond the ferromagnet and antiferromagnet categories set in 1933, by detecting a chiral signature in manganese telluride.",
+      "headline": "SLAC physicists confirm altermagnetism as third type of magnetism",
+      "proves": "The chirality signature found in manganese telluride gives researchers a concrete test to identify altermagnets in other materials.",
+      "outlet": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/releases/2026/11/261104012256.htm",
+      "numbers": [],
+      "picture": {
+        "subject": "Altermagnetism",
+        "concept": "",
+        "query": "SLAC physicists confirmed altermagnetism"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-11-08T18:28:24.932Z",
+  "askedAt": "2026-11-08T18:28:22.452Z"
+}
