@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "monday": "2026-11-16",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: For most of the last decade the Brazilian Amazon lost more forest each year than it does now. In the year to July 2025 the loss fell 11%, to its lowest level in 11 years. (INPE, Brazil's national space research institute)",
+  "quote": {
+    "text": "What you do makes a difference, and you have to decide what kind of difference you want to make.",
+    "by": "Jane Goodall"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "climate_energy",
+      "summary": "Los Angeles City Council voted on October 28 to ban new oil drilling citywide, becoming the largest U.S. city to end oil extraction after a decade of organizing by groups like STAND-LA.",
+      "headline": "Los Angeles votes to ban new oil drilling citywide",
+      "proves": "Sustained neighborhood organizing over ten years can win a citywide ban even after an earlier version lost in court.",
+      "outlet": "Optimist Daily",
+      "url": "https://www.optimistdaily.com/2026/11/after-a-decade-of-community-pressure-la-bans-oil-drilling-for-good/",
+      "numbers": [
+        "28"
+      ],
+      "picture": {
+        "subject": "Los Angeles City Council",
+        "concept": "solar_power",
+        "query": "Los Angeles City Council voted on October 28"
+      }
+    },
+    {
+      "n": 2,
+      "category": "community",
+      "summary": "Teenagers Jonah, 15, and Lucas, 17, paddleboarded through floodwaters in Palm Bay, Florida, to rescue neighbor Brittany Grant, her son and their three dogs after 911 could not reach them.",
+      "headline": "Teenagers paddleboard through floods to rescue neighbors",
+      "proves": "Neighbors with paddleboards can reach flood victims faster than emergency crews when roads are impassable.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/brave-teens-execute-paddleboard-rescue-of-flooded-neighbors-faith-in-humanity-restored/",
+      "numbers": [
+        "15",
+        "17",
+        "911"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "rescue",
+        "query": "Teenagers Jonah"
+      }
+    },
+    {
+      "n": 3,
+      "category": "science",
+      "summary": "Tullis Matson, who left school at 16 with no qualifications and struggled with dyslexia, has received an honorary degree from Harper Adams University for founding Nature's SAFE, which has frozen biological samples from 400 species.",
+      "headline": "Dyslexic founder receives honorary degree for species conservation",
+      "proves": "His Nature's SAFE charity continues freezing genetic material from endangered species, including cells recreated from a white rhino that died at Whipsnade Zoo in 2025.",
+      "outlet": "bbc.co.uk",
+      "url": "https://www.bbc.co.uk/news/articles/cy5z0v60910o",
+      "numbers": [
+        "16",
+        "400"
+      ],
+      "picture": {
+        "subject": "Tullis Matson",
+        "concept": "",
+        "query": "Tullis Matson"
+      }
+    },
+    {
+      "n": 4,
+      "category": "innovation",
+      "summary": "Ledger Mann, a 9-year-old with autism, designed clear sensory backpacks for first responders, with more than 475 now distributed across six states, earning him TIME's 2026 Kid of the Year.",
+      "headline": "9-year-old with autism designs sensory backpacks for first responders",
+      "proves": "First responders in six states now carry sensory kits Ledger designed, a model other departments could request directly from his family's nonprofit.",
+      "outlet": "time.com",
+      "url": "https://time.com/article/2026/11/10/kid-of-the-year-2026/",
+      "numbers": [
+        "475"
+      ],
+      "picture": {
+        "subject": "Ledger Mann",
+        "concept": "",
+        "query": "Ledger Mann"
+      }
+    },
+    {
+      "n": 5,
+      "category": "climate_energy",
+      "summary": "Brazil released what it calls the world's first global roadmap for phasing out coal, oil and gas, a three-phase plan running from 2028 to 2033.",
+      "headline": "Brazil releases roadmap for phasing out coal oil and gas",
+      "proves": "COP31 in Antalya now has a standing framework any country can adopt without waiting for another summit to negotiate one.",
+      "outlet": "Optimist Daily",
+      "url": "https://www.optimistdaily.com/2026/11/brazil-releases-the-worlds-first-fossil-fuel-phaseout-roadmap/",
+      "numbers": [
+        "31"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "Brazil released what it calls the world's first"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-11-15T18:28:46.718Z",
+  "askedAt": "2026-11-15T18:28:44.200Z"
+}
