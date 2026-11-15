@@ -1,0 +1,29 @@
+{
+  "monday": "2026-11-16",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "shelf",
+      "shelfId": "solar_power-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Paneles_solares_en_Cari%C3%B1ena,_Espa%C3%B1a,_2015-01-08,_DD_02.JPG"
+    },
+    {
+      "n": 2,
+      "kind": "shelf",
+      "shelfId": "rescue-3",
+      "landing": "https://commons.wikimedia.org/wiki/File:CH.SZ.Stoos_Fronalpstock_Sequence_Rescue-Helicopter_REGA_16K_16x9-R.jpg"
+    },
+    {
+      "n": 3,
+      "kind": "number"
+    },
+    {
+      "n": 4,
+      "kind": "number"
+    },
+    {
+      "n": 5,
+      "kind": "number"
+    }
+  ]
+}
