@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "monday": "2026-11-23",
+  "title": "What actually went right last week",
+  "zoomOut": "𝐙𝐨𝐨𝐦 𝐨𝐮𝐭: In 1990, acid rain fell on more than 41% of Europe's ecosystems at damaging levels. By 2020 it was about 7%, after sulphur emissions fell by almost 95%. (European Environment Agency)",
+  "quote": {
+    "text": "Never doubt that a small group of thoughtful, committed citizens can change the world; indeed, it's the only thing that ever has.",
+    "by": "Margaret Mead"
+  },
+  "slides": [
+    {
+      "n": 1,
+      "category": "health",
+      "summary": "Content creator Josh Liljenquist's GoFundMe for Detroit mom Azeza Kasham and her son Gigi, who has Lafora disease, raised nearly $600,000 in under two months.",
+      "headline": "GoFundMe raises nearly 600000 for boy with Lafora disease",
+      "proves": "Liljenquist's fundraising model, already used for a man's new roof and a pay-what-you-can cafe, could reach more families facing rare diseases.",
+      "outlet": "Nice News",
+      "url": "https://nicenews.com/humanity/josh-liljenquist-helped-azeza-kasham-gigi-breadiy-lafore-disease/",
+      "numbers": [
+        "$600,000"
+      ],
+      "picture": {
+        "subject": "Lafora disease",
+        "concept": "donation",
+        "query": "Content creator Josh Liljenquist's GoFundMe for Detroit mom"
+      }
+    },
+    {
+      "n": 2,
+      "category": "science",
+      "summary": "UC Davis researchers used brain implants to let two ALS patients speak and sing again, lifting word intelligibility to 94 percent.",
+      "headline": "Brain implants help ALS patients speak and sing again",
+      "proves": "The intelligibility jump shows brain-to-voice implants can move from lab demonstration to real conversation for people who have lost speech to ALS.",
+      "outlet": "The New York Times",
+      "url": "https://www.nytimes.com/2026/11/14/science/brain-implants-als-voice.html",
+      "numbers": [
+        "94 percent"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "UC Davis researchers used brain implants to let"
+      }
+    },
+    {
+      "n": 3,
+      "category": "climate_energy",
+      "summary": "England's rivers have seen PFOS and PFOA levels drop 30 percent and 29 percent over the past decade, new Environment Agency data confirm.",
+      "headline": "England rivers see PFOS and PFOA levels drop over decade",
+      "proves": "The same restriction approach used for PFOS and PFOA could cut levels of the thousands of other forever chemicals still unregulated.",
+      "outlet": "BBC News",
+      "url": "https://www.bbc.com/news/articles/cmze75r55g3jo",
+      "numbers": [
+        "30 percent",
+        "29 percent"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "",
+        "query": "England's rivers have seen PFOS and PFOA levels"
+      }
+    },
+    {
+      "n": 4,
+      "category": "community",
+      "summary": "The Quinault Indian Nation has bought 11,196 acres of forest within its Washington reservation, raising its ownership there from 47% to more than 52%.",
+      "headline": "The Quinault Indian Nation has bought 11,196 acres of forest within its Washington…",
+      "proves": "The Nation can now manage salmon habitat, wetlands and forests across the whole Raft River watershed as one connected landscape instead of parcel by parcel.",
+      "outlet": "nature.org",
+      "url": "https://www.nature.org/en-us/newsroom/quinault-indian-nation-buys-acres-within-reservation-boundaries/",
+      "numbers": [
+        "11,196 acres",
+        "47%",
+        "52%"
+      ],
+      "picture": {
+        "subject": "Quinault Indian Nation",
+        "concept": "trees",
+        "query": "The Quinault Indian Nation has bought 11"
+      }
+    },
+    {
+      "n": 5,
+      "category": "community",
+      "summary": "Culver City neighbor Heidi Widmer checked on 87-year-old Carole, whose Parkinson's had left her isolated, and helped spark a GoFundMe that has raised $109,000.",
+      "headline": "Neighbor helps isolated 87 year old raise 109000 on GoFundMe",
+      "proves": "A GoFundMe launched from one Instagram post has already funded home repairs and plans a stair lift so Carole can keep living independently.",
+      "outlet": "Good News Network",
+      "url": "https://www.goodnewsnetwork.org/loud-neighbor-parkinsons-gofundme/",
+      "numbers": [
+        "87",
+        "$109,000"
+      ],
+      "picture": {
+        "subject": "",
+        "concept": "elderly_care",
+        "query": "Culver City neighbor Heidi Widmer checked on 87-year-old"
+      }
+    }
+  ],
+  "shelfExclude": [],
+  "builtAt": "2026-11-22T18:28:18.331Z",
+  "askedAt": "2026-11-22T18:28:16.079Z"
+}
