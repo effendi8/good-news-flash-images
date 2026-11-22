@@ -1,0 +1,31 @@
+{
+  "monday": "2026-11-23",
+  "slides": [
+    {
+      "n": 1,
+      "kind": "shelf",
+      "shelfId": "donation-2",
+      "landing": "https://commons.wikimedia.org/wiki/File:Donation_Box.jpg"
+    },
+    {
+      "n": 2,
+      "kind": "number"
+    },
+    {
+      "n": 3,
+      "kind": "number"
+    },
+    {
+      "n": 4,
+      "kind": "shelf",
+      "shelfId": "trees-1",
+      "landing": "https://commons.wikimedia.org/wiki/File:Pine_seedlings_for_reforestation-Avitt-1_(52182037588).jpg"
+    },
+    {
+      "n": 5,
+      "kind": "shelf",
+      "shelfId": "elderly_care-3",
+      "landing": "https://commons.wikimedia.org/wiki/File:A_woman_supporting_herself_with_a_walking_frame.jpg"
+    }
+  ]
+}
